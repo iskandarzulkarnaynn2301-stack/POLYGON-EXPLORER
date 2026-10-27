@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PolygonSvgPreview } from './PolygonSvgPreview';
 import { PikoMascot } from './PikoMascot';
-import { getPolygonPoints } from '../utils/geometry';
+import { getPolygonPoints, pointsToSvgPointsString } from '../utils/geometry';
 import { ArrowRight, CheckCircle2, Microscope, RotateCw, Check, X } from 'lucide-react';
 
 interface Stage6DiscoveryLabProps {
@@ -19,7 +19,8 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
   const countShapes: Array<{ key: string; name: string; sides: number; type: 'pentagon' | 'hexagon' | 'heptagon' | 'octagon' }> = [
     { key: 'p1', name: 'Pentagon', sides: 5, type: 'pentagon' },
     { key: 'p2', name: 'Hexagon', sides: 6, type: 'hexagon' },
-    { key: 'p3', name: 'Octagon', sides: 8, type: 'octagon' }
+    { key: 'p3', name: 'Heptagon', sides: 7, type: 'heptagon' },
+    { key: 'p4', name: 'Octagon', sides: 8, type: 'octagon' }
   ];
   const [clickedElements, setClickedElements] = useState<number[]>([]);
   const [countFeedback, setCountFeedback] = useState<string>('');
@@ -107,14 +108,14 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     const currentShape = countShapes[countShapeIndex];
     if (clickedElements.length === currentShape.sides) {
       setCountSuccess(true);
-      setCountFeedback(`Excellent! You counted all ${currentShape.sides} elements correctly!`);
+      setCountFeedback(`Excellent! You counted all ${currentShape.sides} vertices correctly!`);
       if (!completedActivities.includes('count')) {
         setCompletedActivities([...completedActivities, 'count']);
       }
     } else if (clickedElements.length < currentShape.sides) {
-      setCountFeedback(`Almost there! You counted ${clickedElements.length}. Try to count all ${currentShape.sides} elements!`);
+      setCountFeedback(`Almost there! You counted ${clickedElements.length}. Try to count all ${currentShape.sides} vertices!`);
     } else {
-      setCountFeedback(`You counted ${clickedElements.length}. Be careful to click each element only once!`);
+      setCountFeedback(`You counted ${clickedElements.length}. Be careful to click each vertex only once!`);
     }
   };
 
@@ -245,7 +246,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
                 Activity A — Interactive Counting
               </span>
               <h2 className="text-2xl font-black text-slate-800 mt-1">
-                Count the Sides & Vertices of {countShapes[countShapeIndex].name}
+                Count the Vertices of {countShapes[countShapeIndex].name}
               </h2>
             </div>
             <span className="text-sm font-bold text-slate-500">
@@ -254,43 +255,80 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
           </div>
 
           <p className="text-slate-600 text-sm font-semibold">
-            👇 Click on each vertex (dot) below to count them!
+            👇 Click on each vertex corner (dot) below to count them!
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            {/* Interactive SVG vertices clickable canvas */}
+            {/* Fully Integrated SVG Canvas (Single Viewport to ensure 100% mathematical vertex alignment) */}
             <div className="flex flex-col items-center justify-center bg-purple-50/50 p-6 rounded-3xl border-2 border-purple-100">
               <div className="relative w-64 h-64 flex items-center justify-center">
-                <PolygonSvgPreview
-                  type={countShapes[countShapeIndex].type}
-                  size={240}
-                  fillColor="#8b5cf6"
-                />
-
-                {/* Overlay clickable vertex handles */}
                 {(() => {
-                  const pts = getPolygonPoints(countShapes[countShapeIndex].sides, 90, { x: 120, y: 120 }, 0, true);
-                  return pts.map((p, idx) => {
-                    const isClicked = clickedElements.includes(idx);
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => handleElementClick(idx)}
-                        style={{ left: `${p.x - 16}px`, top: `${p.y - 16}px` }}
-                        className={`absolute w-8 h-8 rounded-full border-2 font-black text-xs flex items-center justify-center transition-all cursor-pointer ${
-                          isClicked
-                            ? 'bg-amber-400 text-amber-950 border-amber-600 scale-125 shadow-md'
-                            : 'bg-white text-purple-700 border-purple-500 hover:scale-110'
-                        }`}
-                      >
-                        {isClicked ? idx + 1 : '•'}
-                      </button>
-                    );
-                  });
+                  const size = 240;
+                  const center = { x: 120, y: 120 };
+                  const radius = 98; // Identical radius logic used in geometry.ts for size=240
+                  const sides = countShapes[countShapeIndex].sides;
+                  const points = getPolygonPoints(sides, radius, center, 0, true);
+                  const pointsString = pointsToSvgPointsString(points);
+
+                  return (
+                    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-md">
+                      {/* Polygon Base */}
+                      <polygon
+                        points={pointsString}
+                        fill="#8b5cf6"
+                        fillOpacity="0.85"
+                        stroke="#4c1d95"
+                        strokeWidth="4"
+                        strokeLinejoin="round"
+                      />
+
+                      {/* Vertices perfectly centered on actual corner coordinates */}
+                      {points.map((p, idx) => {
+                        const isClicked = clickedElements.includes(idx);
+                        return (
+                          <g
+                            key={idx}
+                            onClick={() => handleElementClick(idx)}
+                            className="cursor-pointer group"
+                          >
+                            {/* Larger invisible touch target area for easy tapping */}
+                            <circle cx={p.x} cy={p.y} r="18" fill="transparent" />
+
+                            {/* Centered vertex circle indicator */}
+                            <circle
+                              cx={p.x}
+                              cy={p.y}
+                              r={isClicked ? "13" : "9"}
+                              fill={isClicked ? "#f59e0b" : "#ffffff"}
+                              stroke={isClicked ? "#78350f" : "#6d28d9"}
+                              strokeWidth={isClicked ? "3" : "2.5"}
+                              className="transition-all duration-150 group-hover:scale-110"
+                            />
+
+                            {/* Text label inside clicked dot */}
+                            {isClicked ? (
+                              <text
+                                x={p.x}
+                                y={p.y + 4}
+                                textAnchor="middle"
+                                fill="#78350f"
+                                fontSize="11"
+                                fontWeight="900"
+                              >
+                                {idx + 1}
+                              </text>
+                            ) : (
+                              <circle cx={p.x} cy={p.y} r="2.5" fill="#6d28d9" />
+                            )}
+                          </g>
+                        );
+                      })}
+                    </svg>
+                  );
                 })()}
               </div>
 
-              <div className="mt-4 bg-white px-4 py-2 rounded-2xl border border-purple-200 text-center">
+              <div className="mt-4 bg-white px-5 py-2 rounded-2xl border border-purple-200 text-center shadow-xs">
                 <span className="text-xs text-slate-500 font-bold block">Vertices Counted</span>
                 <span className="text-2xl font-black text-purple-700">
                   {clickedElements.length} / {countShapes[countShapeIndex].sides}
@@ -303,7 +341,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
               <PikoMascot
                 mood={countSuccess ? 'celebrating' : 'thinking'}
                 size="md"
-                message={countFeedback || `Count each corner carefully. A ${countShapes[countShapeIndex].name.toLowerCase()} should have ${countShapes[countShapeIndex].sides} vertices!`}
+                message={countFeedback || `Click each corner precisely. A ${countShapes[countShapeIndex].name.toLowerCase()} has ${countShapes[countShapeIndex].sides} vertices!`}
               />
 
               <div className="flex flex-col gap-3">
