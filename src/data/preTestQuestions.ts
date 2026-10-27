@@ -1,7 +1,7 @@
 import type { AssessmentItem } from '../types/game';
 
 export const PRE_TEST_QUESTIONS: AssessmentItem[] = [
-  // Item 1: Name identification (Pentagon)
+  // Question 1 (Type A: Identify the Polygon - Pentagon)
   {
     id: 1,
     type: 'identification',
@@ -17,11 +17,12 @@ export const PRE_TEST_QUESTIONS: AssessmentItem[] = [
     explanation: 'A regular polygon with 5 equal straight sides is called a pentagon.',
     learningObjective: '7.3.1 Identify regular pentagon.'
   },
-  // Item 2: Side counting (Hexagon)
+
+  // Question 2 (Type B: Count the Sides - Hexagon)
   {
     id: 2,
     type: 'property',
-    question: 'How many straight sides does a regular hexagon have?',
+    question: 'How many straight sides does this regular hexagon have?',
     illustrationType: 'hexagon',
     options: [
       { id: 'a', text: '5 sides' },
@@ -30,56 +31,60 @@ export const PRE_TEST_QUESTIONS: AssessmentItem[] = [
       { id: 'd', text: '8 sides' }
     ],
     correctOptionId: 'b',
-    explanation: 'A hexagon always has 6 straight sides.',
+    explanation: 'A regular hexagon always has 6 straight sides.',
     learningObjective: '7.3.1 Determine the number of straight sides of a hexagon.'
   },
-  // Item 3: Vertex counting (Octagon)
+
+  // Question 3 (Type C: Count the Vertices - Heptagon)
   {
     id: 3,
     type: 'property',
-    question: 'How many vertices (corners) does a regular octagon have?',
-    illustrationType: 'octagon',
+    question: 'How many vertices (corners) can you count in this regular heptagon?',
+    illustrationType: 'heptagon',
     options: [
-      { id: 'a', text: '6 vertices' },
-      { id: 'b', text: '7 vertices' },
-      { id: 'c', text: '8 vertices' },
-      { id: 'd', text: '10 vertices' }
+      { id: 'a', text: '5 vertices' },
+      { id: 'b', text: '6 vertices' },
+      { id: 'c', text: '7 vertices' },
+      { id: 'd', text: '8 vertices' }
     ],
     correctOptionId: 'c',
-    explanation: 'An octagon has 8 vertices (corners).',
-    learningObjective: '7.3.1 Determine the number of vertices of an octagon.'
+    explanation: 'A heptagon has 7 vertices (corners).',
+    learningObjective: '7.3.1 Determine the number of vertices of a heptagon.'
   },
-  // Item 4: Regular characteristics
+
+  // Question 4 (Type G: Choose the Correct Statement)
   {
     id: 4,
     type: 'property',
     question: 'Which statement is TRUE about all regular polygons?',
     options: [
-      { id: 'a', text: 'All sides are curved lines' },
-      { id: 'b', text: 'All straight sides are equal in length' },
+      { id: 'a', text: 'All straight sides are equal in length' },
+      { id: 'b', text: 'All sides are curved lines' },
       { id: 'c', text: 'They always have only 3 sides' },
       { id: 'd', text: 'Their sides are all different lengths' }
     ],
-    correctOptionId: 'b',
+    correctOptionId: 'a',
     explanation: 'A regular polygon has straight sides that are all equal in length.',
     learningObjective: '7.3.1 Recognise basic characteristics of regular polygons.'
   },
-  // Item 5: Regular vs Irregular
+
+  // Question 5 (Type D: Regular or Irregular - Irregular Hexagon)
   {
     id: 5,
     type: 'property',
     question: 'Look at the polygon below. Is this a REGULAR or IRREGULAR polygon?',
     illustrationType: 'irregular_hexagon',
     options: [
-      { id: 'a', text: 'Regular Polygon (all sides equal)' },
+      { id: 'a', text: 'Regular Polygon (all sides are equal)' },
       { id: 'b', text: 'Irregular Polygon (sides are NOT all equal)' },
-      { id: 'c', text: 'Not a polygon at all' }
+      { id: 'c', text: 'Curved shape (not made of straight lines)' }
     ],
     correctOptionId: 'b',
-    explanation: 'This polygon has sides of different lengths, so it is an irregular polygon.',
+    explanation: 'This polygon has 6 straight sides of unequal lengths, so it is an irregular polygon.',
     learningObjective: '7.3.1 Distinguish regular polygons from irregular polygons.'
   },
-  // Item 6: Rotated orientation recognition
+
+  // Question 6 (Type F: Recognise a Rotated Polygon - Pentagon)
   {
     id: 6,
     type: 'identification',
@@ -96,42 +101,12 @@ export const PRE_TEST_QUESTIONS: AssessmentItem[] = [
     explanation: 'Rotating a polygon does not change its number of sides. It still has 5 sides, so it is a pentagon.',
     learningObjective: '7.3.1 Recognise polygons when rotated or displayed in different orientations.'
   },
-  // Item 7: Heptagon identification
+
+  // Question 7 (Type E: Find the Correct Polygon - Octagon)
   {
     id: 7,
     type: 'identification',
-    question: 'Count the sides of this shape carefully. What is its name?',
-    illustrationType: 'heptagon',
-    options: [
-      { id: 'a', text: 'Hexagon' },
-      { id: 'b', text: 'Heptagon' },
-      { id: 'c', text: 'Octagon' },
-      { id: 'd', text: 'Pentagon' }
-    ],
-    correctOptionId: 'b',
-    explanation: 'A regular polygon with 7 straight sides is a heptagon.',
-    learningObjective: '7.3.1 Identify regular heptagon.'
-  },
-  // Item 8: Visual selection
-  {
-    id: 8,
-    type: 'visual',
-    question: 'Which of these shapes is a Regular Hexagon?',
-    options: [
-      { id: 'a', text: 'Shape A', svgType: 'pentagon', isRegular: true, sides: 5 },
-      { id: 'b', text: 'Shape B', svgType: 'hexagon', isRegular: true, sides: 6 },
-      { id: 'c', text: 'Shape C', svgType: 'irregular_hexagon', isRegular: false, sides: 6 },
-      { id: 'd', text: 'Shape D', svgType: 'octagon', isRegular: true, sides: 8 }
-    ],
-    correctOptionId: 'b',
-    explanation: 'Shape B is a regular hexagon with 6 equal sides.',
-    learningObjective: '7.3.1 Apply understanding of polygon characteristics to visual problems.'
-  },
-  // Item 9: Visual application problem
-  {
-    id: 9,
-    type: 'visual',
-    question: 'A stop sign is shaped like a polygon with 8 straight sides of equal length. What type of polygon is it?',
+    question: 'Piko needs a regular polygon with 8 vertices. Which shape has 8 vertices?',
     illustrationType: 'octagon',
     options: [
       { id: 'a', text: 'Pentagon' },
@@ -140,10 +115,42 @@ export const PRE_TEST_QUESTIONS: AssessmentItem[] = [
       { id: 'd', text: 'Octagon' }
     ],
     correctOptionId: 'd',
-    explanation: 'A shape with 8 equal straight sides is an octagon.',
-    learningObjective: '7.3.1 Apply understanding to visual real-world problems.'
+    explanation: 'An octagon has 8 straight sides and 8 vertices.',
+    learningObjective: '7.3.1 Identify regular octagon characteristics.'
   },
-  // Item 10: Pattern Completion
+
+  // Question 8 (Type H: Visual Comparison)
+  {
+    id: 8,
+    type: 'visual',
+    question: 'Which polygon has MORE straight sides: a Regular Pentagon or a Regular Octagon?',
+    options: [
+      { id: 'a', text: 'Regular Octagon (8 sides vs 5 sides)' },
+      { id: 'b', text: 'Regular Pentagon (5 sides vs 8 sides)' },
+      { id: 'c', text: 'They both have the same number of sides' }
+    ],
+    correctOptionId: 'a',
+    explanation: 'A regular octagon has 8 sides, which is more than a pentagon with 5 sides.',
+    learningObjective: '7.3.1 Apply understanding to visual comparisons.'
+  },
+
+  // Question 9 (Type I: Apply Polygon Knowledge - Heptagon Selection)
+  {
+    id: 9,
+    type: 'visual',
+    question: 'Piko is looking for a polygon with 7 straight sides. Which shape should he choose?',
+    options: [
+      { id: 'a', text: 'Shape A (Pentagon - 5 sides)', svgType: 'pentagon' },
+      { id: 'b', text: 'Shape B (Hexagon - 6 sides)', svgType: 'hexagon' },
+      { id: 'c', text: 'Shape C (Heptagon - 7 sides)', svgType: 'heptagon' },
+      { id: 'd', text: 'Shape D (Octagon - 8 sides)', svgType: 'octagon' }
+    ],
+    correctOptionId: 'c',
+    explanation: 'Shape C is a regular heptagon, which has 7 straight sides.',
+    learningObjective: '7.3.1 Apply understanding of polygon properties.'
+  },
+
+  // Question 10 (Type J: Interactive Pattern Completion)
   {
     id: 10,
     type: 'pattern',

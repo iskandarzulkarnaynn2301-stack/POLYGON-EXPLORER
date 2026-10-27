@@ -36,9 +36,11 @@ export function getPolygonPoints(
 
     let r = radius;
     if (!isRegular) {
-      // Perturb radius deterministically per vertex to create a clear irregular polygon with straight sides but unequal side lengths
-      const perturbationFactor = [1.3, 0.7, 1.25, 0.65, 1.2, 0.75, 1.15, 0.8];
-      r = radius * perturbationFactor[i % perturbationFactor.length];
+      // Scale base radius slightly down to guarantee zero clipping inside SVG viewbox
+      // Perturb radius deterministically per vertex to create a clear, elegant irregular polygon with straight sides and unequal side lengths
+      const baseR = radius * 0.75;
+      const perturbationFactor = [1.25, 0.75, 1.20, 0.70, 1.15, 0.80];
+      r = baseR * perturbationFactor[i % perturbationFactor.length];
     }
 
     const x = center.x + r * Math.cos(angle);
