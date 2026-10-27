@@ -233,9 +233,14 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
   // High-performance Pointer Event Dragging
   const handlePointerDown = (e: React.PointerEvent, shape: WorkshopShape) => {
     e.stopPropagation();
+    // Explicitly select and keep open the editing menu for this shape
     setSelectedShapeId(shape.id);
 
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (err) {
+      // Ignore fallback
+    }
 
     dragRef.current = {
       isDragging: true,
@@ -349,7 +354,8 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
               {COLOR_PALETTE.map((c) => (
                 <button
                   key={c}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedColor(c);
                     if (selectedShapeId) {
                       updateSelectedShape((s) => ({ ...s, color: c }));
@@ -372,7 +378,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
               </h4>
               {activeShape && (
                 <button
-                  onClick={() => setSelectedShapeId(null)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedShapeId(null);
+                  }}
                   className="text-[10px] font-bold text-slate-400 hover:text-slate-600 flex items-center gap-0.5 cursor-pointer"
                 >
                   <X className="w-3 h-3" /> Deselect
@@ -390,7 +399,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                 {/* Edit Action Buttons Grid */}
                 <div className="grid grid-cols-2 gap-1.5">
                   <button
-                    onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation - 15 + 360) % 360 }))}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateSelectedShape((s) => ({ ...s, rotation: (s.rotation - 15 + 360) % 360 }));
+                    }}
                     className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
                   >
                     <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
@@ -398,7 +410,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                   </button>
 
                   <button
-                    onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation + 15) % 360 }))}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateSelectedShape((s) => ({ ...s, rotation: (s.rotation + 15) % 360 }));
+                    }}
                     className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
                   >
                     <RotateCw className="w-3.5 h-3.5 text-amber-600" />
@@ -406,7 +421,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                   </button>
 
                   <button
-                    onClick={duplicateSelectedShape}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateSelectedShape();
+                    }}
                     className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
                   >
                     <Copy className="w-3.5 h-3.5 text-amber-600" />
@@ -414,7 +432,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                   </button>
 
                   <button
-                    onClick={removeSelectedShape}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeSelectedShape();
+                    }}
                     className="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-rose-700 cursor-pointer shadow-2xs"
                   >
                     <Trash2 className="w-3.5 h-3.5 text-rose-600" />
@@ -422,7 +443,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                   </button>
 
                   <button
-                    onClick={bringToFront}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      bringToFront();
+                    }}
                     className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
                   >
                     <MoveUp className="w-3.5 h-3.5 text-indigo-600" />
@@ -430,7 +454,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                   </button>
 
                   <button
-                    onClick={sendToBack}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      sendToBack();
+                    }}
                     className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
                   >
                     <MoveDown className="w-3.5 h-3.5 text-indigo-600" />
@@ -442,7 +469,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
               <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-center space-y-1">
                 <MousePointer className="w-5 h-5 text-slate-400 mx-auto" />
                 <p className="text-[11px] font-bold text-slate-500">
-                  Select a polygon on canvas to edit
+                  Select or double-click a polygon to edit
                 </p>
               </div>
             )}
@@ -519,6 +546,15 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                 return (
                   <div
                     key={shape.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedShapeId(shape.id);
+                    }}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setSelectedShapeId(shape.id);
+                    }}
                     onPointerDown={(e) => handlePointerDown(e, shape)}
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
