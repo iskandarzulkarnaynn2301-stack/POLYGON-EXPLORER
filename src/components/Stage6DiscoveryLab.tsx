@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PolygonSvgPreview } from './PolygonSvgPreview';
 import { PikoMascot } from './PikoMascot';
 import { getPolygonPoints, pointsToSvgPointsString } from '../utils/geometry';
-import { ArrowRight, CheckCircle2, Microscope, RotateCw, Check, X } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Microscope, RotateCw, Check, X, Search } from 'lucide-react';
 
 interface Stage6DiscoveryLabProps {
   onCompleteDiscovery: () => void;
@@ -11,16 +11,23 @@ interface Stage6DiscoveryLabProps {
 export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
   onCompleteDiscovery
 }) => {
-  const [activeTab, setActiveTab] = useState<'count' | 'classify' | 'rotate'>('count');
+  const [activeTab, setActiveTab] = useState<'count' | 'classify' | 'rotate' | 'detective'>('count');
   const [completedActivities, setCompletedActivities] = useState<string[]>([]);
 
   // Activity A state
   const [countShapeIndex, setCountShapeIndex] = useState(0);
-  const countShapes: Array<{ key: string; name: string; sides: number; type: 'pentagon' | 'hexagon' | 'heptagon' | 'octagon' }> = [
-    { key: 'p1', name: 'Pentagon', sides: 5, type: 'pentagon' },
-    { key: 'p2', name: 'Hexagon', sides: 6, type: 'hexagon' },
-    { key: 'p3', name: 'Heptagon', sides: 7, type: 'heptagon' },
-    { key: 'p4', name: 'Octagon', sides: 8, type: 'octagon' }
+  const countShapes: Array<{
+    key: string;
+    name: string;
+    prompt: string;
+    type: 'pentagon' | 'hexagon' | 'heptagon' | 'octagon';
+    targetCount: number;
+    mode: 'vertices' | 'sides';
+  }> = [
+    { key: 'p1', name: 'Pentagon', prompt: 'How many straight sides does this regular pentagon have?', type: 'pentagon', targetCount: 5, mode: 'sides' },
+    { key: 'p2', name: 'Hexagon', prompt: 'Tap each vertex (corner dot) of this regular hexagon to count them!', type: 'hexagon', targetCount: 6, mode: 'vertices' },
+    { key: 'p3', name: 'Heptagon', prompt: 'How many vertices can you count in this regular heptagon?', type: 'heptagon', targetCount: 7, mode: 'vertices' },
+    { key: 'p4', name: 'Octagon', prompt: 'Which number matches the total straight sides of this octagon?', type: 'octagon', targetCount: 8, mode: 'sides' }
   ];
   const [clickedElements, setClickedElements] = useState<number[]>([]);
   const [countFeedback, setCountFeedback] = useState<string>('');
@@ -34,6 +41,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       title: 'Shape A',
       type: 'hexagon' as const,
       isRegular: true,
+      prompt: 'Which polygon is a Regular Hexagon with equal side lengths?',
       explanation: 'All 6 sides are straight and equal in length, so it is a Regular Hexagon!'
     },
     {
@@ -41,6 +49,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       title: 'Shape B',
       type: 'irregular_hexagon' as const,
       isRegular: false,
+      prompt: 'Is this polygon Regular or Irregular?',
       explanation: 'Look carefully! The sides have unequal lengths, so it is an Irregular Hexagon!'
     },
     {
@@ -48,14 +57,16 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       title: 'Shape C',
       type: 'pentagon' as const,
       isRegular: true,
-      explanation: 'All 5 sides are straight and equal in length, so it is a Regular Pentagon!'
+      prompt: 'Does this pentagon meet the rule for a Regular Polygon?',
+      explanation: 'Yes! All 5 sides are straight and equal in length.'
     },
     {
       id: 'c4',
       title: 'Shape D',
       type: 'irregular_pentagon' as const,
       isRegular: false,
-      explanation: 'The sides are unequal in length, so it is an Irregular Pentagon!'
+      prompt: 'Tap the classification for this pentagon with unequal sides:',
+      explanation: 'The sides are unequal in length, so it is an Irregular Polygon!'
     }
   ];
   const [selectedClass, setSelectedClass] = useState<boolean | null>(null);
@@ -70,6 +81,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       type: 'rotated_pentagon' as const,
       rotation: 72,
       correctName: 'Pentagon',
+      prompt: 'Which shape is still a regular pentagon after turning?',
       options: ['Pentagon (5 sides)', 'Hexagon (6 sides)', 'Octagon (8 sides)'],
       explanation: 'Correct! Turning a pentagon around does not change its 5 sides. It is still a Pentagon!'
     },
@@ -79,8 +91,9 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       type: 'rotated_heptagon' as const,
       rotation: 90,
       correctName: 'Heptagon',
+      prompt: 'Did the number of sides change when this polygon was rotated?',
       options: ['Hexagon (6 sides)', 'Heptagon (7 sides)', 'Octagon (8 sides)'],
-      explanation: 'Correct! Rotating a shape does not change its number of sides. It still has 7 sides, so it is a Heptagon!'
+      explanation: 'Correct! Rotating a shape does not change its number of sides. It still has 7 sides!'
     },
     {
       id: 'r3',
@@ -88,12 +101,63 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       type: 'rotated_octagon' as const,
       rotation: 67.5,
       correctName: 'Octagon',
+      prompt: 'Find the octagon shown in a different position:',
       options: ['Heptagon (7 sides)', 'Octagon (8 sides)', 'Pentagon (5 sides)'],
       explanation: 'Correct! Orientation does not affect polygon properties. It has 8 sides, so it is an Octagon!'
     }
   ];
   const [rotateSelected, setRotateSelected] = useState<string | null>(null);
   const [rotateFeedback, setRotateFeedback] = useState<string>('');
+
+  // Activity D — Polygon Detective State
+  const [detectiveIndex, setDetectiveIndex] = useState(0);
+  const detectiveClues = [
+    {
+      id: 'd1',
+      clue: '“I have 5 straight sides of equal length and 5 vertices. Who am I?”',
+      correctKey: 'pentagon',
+      options: [
+        { key: 'pentagon', name: 'Regular Pentagon', sides: 5 },
+        { key: 'hexagon', name: 'Regular Hexagon', sides: 6 },
+        { key: 'octagon', name: 'Regular Octagon', sides: 8 }
+      ],
+      explanation: 'A regular polygon with 5 equal straight sides is a Pentagon!'
+    },
+    {
+      id: 'd2',
+      clue: '“I have 7 vertices (corners). Which regular polygon am I?”',
+      correctKey: 'heptagon',
+      options: [
+        { key: 'hexagon', name: 'Regular Hexagon', sides: 6 },
+        { key: 'heptagon', name: 'Regular Heptagon', sides: 7 },
+        { key: 'octagon', name: 'Regular Octagon', sides: 8 }
+      ],
+      explanation: 'A polygon with 7 vertices is a Heptagon!'
+    },
+    {
+      id: 'd3',
+      clue: '“I have 8 straight sides of equal length. Find me!”',
+      correctKey: 'octagon',
+      options: [
+        { key: 'pentagon', name: 'Regular Pentagon', sides: 5 },
+        { key: 'heptagon', name: 'Regular Heptagon', sides: 7 },
+        { key: 'octagon', name: 'Regular Octagon', sides: 8 }
+      ],
+      explanation: 'A polygon with 8 equal straight sides is an Octagon!'
+    },
+    {
+      id: 'd4',
+      clue: '“Which regular polygon has MORE sides: a Pentagon (5) or a Hexagon (6)?”',
+      correctKey: 'hexagon',
+      options: [
+        { key: 'pentagon', name: 'Pentagon (5 sides)', sides: 5 },
+        { key: 'hexagon', name: 'Hexagon (6 sides)', sides: 6 }
+      ],
+      explanation: 'A Hexagon has 6 sides, which is more than a Pentagon (5 sides)!'
+    }
+  ];
+  const [detectiveChoice, setDetectiveChoice] = useState<string | null>(null);
+  const [detectiveFeedback, setDetectiveFeedback] = useState<string>('');
 
   // Activity A Element Click Handler
   const handleElementClick = (idx: number) => {
@@ -106,16 +170,16 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
 
   const verifyCount = () => {
     const currentShape = countShapes[countShapeIndex];
-    if (clickedElements.length === currentShape.sides) {
+    if (clickedElements.length === currentShape.targetCount) {
       setCountSuccess(true);
-      setCountFeedback(`Excellent! You counted all ${currentShape.sides} vertices correctly!`);
+      setCountFeedback(`Excellent! You counted all ${currentShape.targetCount} ${currentShape.mode} correctly!`);
       if (!completedActivities.includes('count')) {
         setCompletedActivities([...completedActivities, 'count']);
       }
-    } else if (clickedElements.length < currentShape.sides) {
-      setCountFeedback(`Almost there! You counted ${clickedElements.length}. Try to count all ${currentShape.sides} vertices!`);
+    } else if (clickedElements.length < currentShape.targetCount) {
+      setCountFeedback(`Almost there! You counted ${clickedElements.length}. Try to count all ${currentShape.targetCount} ${currentShape.mode}!`);
     } else {
-      setCountFeedback(`You counted ${clickedElements.length}. Be careful to click each vertex only once!`);
+      setCountFeedback(`You counted ${clickedElements.length}. Be careful to click each ${currentShape.mode === 'sides' ? 'side' : 'vertex'} only once!`);
     }
   };
 
@@ -174,7 +238,30 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     }
   };
 
-  const allLabComplete = ['count', 'classify', 'rotate'].every((act) => completedActivities.includes(act));
+  // Activity D Detective Handler
+  const handleDetectiveChoice = (key: string) => {
+    const current = detectiveClues[detectiveIndex];
+    setDetectiveChoice(key);
+
+    if (key === current.correctKey) {
+      setDetectiveFeedback(`Great Detective Work! ${current.explanation}`);
+      if (!completedActivities.includes('detective')) {
+        setCompletedActivities([...completedActivities, 'detective']);
+      }
+    } else {
+      setDetectiveFeedback(`Keep investigating! ${current.explanation}`);
+    }
+  };
+
+  const handleNextDetective = () => {
+    if (detectiveIndex < detectiveClues.length - 1) {
+      setDetectiveIndex(detectiveIndex + 1);
+      setDetectiveChoice(null);
+      setDetectiveFeedback('');
+    }
+  };
+
+  const allLabComplete = ['count', 'classify', 'rotate', 'detective'].every((act) => completedActivities.includes(act));
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
@@ -193,7 +280,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
         <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 text-center shrink-0">
           <span className="text-xs uppercase text-purple-200 font-bold block">Activities</span>
           <span className="text-xl font-black">
-            {completedActivities.length} / 3 Completed
+            {completedActivities.length} / 4 Completed
           </span>
         </div>
       </div>
@@ -202,38 +289,50 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       <div className="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border-2 border-purple-200 shadow-sm">
         <button
           onClick={() => setActiveTab('count')}
-          className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl font-extrabold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 min-w-[130px] py-3 px-3 rounded-xl font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             activeTab === 'count'
               ? 'bg-purple-600 text-white shadow-md'
               : 'text-slate-600 hover:bg-purple-50'
           }`}
         >
-          <span>A. Count Sides & Vertices</span>
+          <span>A. Count Properties</span>
           {completedActivities.includes('count') && <CheckCircle2 className="w-4 h-4 text-emerald-300" />}
         </button>
 
         <button
           onClick={() => setActiveTab('classify')}
-          className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl font-extrabold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 min-w-[130px] py-3 px-3 rounded-xl font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             activeTab === 'classify'
               ? 'bg-purple-600 text-white shadow-md'
               : 'text-slate-600 hover:bg-purple-50'
           }`}
         >
-          <span>B. Regular or Irregular?</span>
+          <span>B. Regular or Irregular</span>
           {completedActivities.includes('classify') && <CheckCircle2 className="w-4 h-4 text-emerald-300" />}
         </button>
 
         <button
           onClick={() => setActiveTab('rotate')}
-          className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl font-extrabold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 min-w-[130px] py-3 px-3 rounded-xl font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             activeTab === 'rotate'
               ? 'bg-purple-600 text-white shadow-md'
               : 'text-slate-600 hover:bg-purple-50'
           }`}
         >
-          <span>C. Same Shape, Different Position</span>
+          <span>C. Rotated Shapes</span>
           {completedActivities.includes('rotate') && <CheckCircle2 className="w-4 h-4 text-emerald-300" />}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('detective')}
+          className={`flex-1 min-w-[130px] py-3 px-3 rounded-xl font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            activeTab === 'detective'
+              ? 'bg-purple-600 text-white shadow-md'
+              : 'text-slate-600 hover:bg-purple-50'
+          }`}
+        >
+          <span>D. Polygon Detective</span>
+          {completedActivities.includes('detective') && <CheckCircle2 className="w-4 h-4 text-emerald-300" />}
         </button>
       </div>
 
@@ -243,36 +342,31 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-purple-100 pb-4">
             <div>
               <span className="text-xs font-black text-purple-600 uppercase tracking-wider bg-purple-50 px-2.5 py-1 rounded-full">
-                Activity A — Interactive Counting
+                Activity A — Property Exploration
               </span>
-              <h2 className="text-2xl font-black text-slate-800 mt-1">
-                Count the Vertices of {countShapes[countShapeIndex].name}
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 mt-1">
+                {countShapes[countShapeIndex].prompt}
               </h2>
             </div>
             <span className="text-sm font-bold text-slate-500">
-              Shape {countShapeIndex + 1} of {countShapes.length}
+              Question {countShapeIndex + 1} of {countShapes.length}
             </span>
           </div>
 
-          <p className="text-slate-600 text-sm font-semibold">
-            👇 Click on each vertex corner (dot) below to count them!
-          </p>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            {/* Fully Integrated SVG Canvas (Single Viewport to ensure 100% mathematical vertex alignment) */}
+            {/* SVG Canvas */}
             <div className="flex flex-col items-center justify-center bg-purple-50/50 p-6 rounded-3xl border-2 border-purple-100">
               <div className="relative w-64 h-64 flex items-center justify-center">
                 {(() => {
                   const size = 240;
                   const center = { x: 120, y: 120 };
-                  const radius = 98; // Identical radius logic used in geometry.ts for size=240
-                  const sides = countShapes[countShapeIndex].sides;
+                  const radius = 98;
+                  const sides = countShapes[countShapeIndex].targetCount;
                   const points = getPolygonPoints(sides, radius, center, 0, true);
                   const pointsString = pointsToSvgPointsString(points);
 
                   return (
                     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-md">
-                      {/* Polygon Base */}
                       <polygon
                         points={pointsString}
                         fill="#8b5cf6"
@@ -291,10 +385,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
                             onClick={() => handleElementClick(idx)}
                             className="cursor-pointer group"
                           >
-                            {/* Larger invisible touch target area for easy tapping */}
                             <circle cx={p.x} cy={p.y} r="18" fill="transparent" />
-
-                            {/* Centered vertex circle indicator */}
                             <circle
                               cx={p.x}
                               cy={p.y}
@@ -304,8 +395,6 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
                               strokeWidth={isClicked ? "3" : "2.5"}
                               className="transition-all duration-150 group-hover:scale-110"
                             />
-
-                            {/* Text label inside clicked dot */}
                             {isClicked ? (
                               <text
                                 x={p.x}
@@ -329,9 +418,9 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
               </div>
 
               <div className="mt-4 bg-white px-5 py-2 rounded-2xl border border-purple-200 text-center shadow-xs">
-                <span className="text-xs text-slate-500 font-bold block">Vertices Counted</span>
+                <span className="text-xs text-slate-500 font-bold block">Count Registered</span>
                 <span className="text-2xl font-black text-purple-700">
-                  {clickedElements.length} / {countShapes[countShapeIndex].sides}
+                  {clickedElements.length} / {countShapes[countShapeIndex].targetCount}
                 </span>
               </div>
             </div>
@@ -341,7 +430,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
               <PikoMascot
                 mood={countSuccess ? 'celebrating' : 'thinking'}
                 size="md"
-                message={countFeedback || `Click each corner precisely. A ${countShapes[countShapeIndex].name.toLowerCase()} has ${countShapes[countShapeIndex].sides} vertices!`}
+                message={countFeedback || `Tap each corner dot carefully. A ${countShapes[countShapeIndex].name.toLowerCase()} has ${countShapes[countShapeIndex].targetCount} ${countShapes[countShapeIndex].mode}!`}
               />
 
               <div className="flex flex-col gap-3">
@@ -349,7 +438,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
                   onClick={verifyCount}
                   className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-base rounded-2xl shadow-md transition-all cursor-pointer"
                 >
-                  CHECK MY COUNT
+                  CHECK MY ANSWER
                 </button>
 
                 {countSuccess && countShapeIndex < countShapes.length - 1 && (
@@ -357,7 +446,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
                     onClick={handleNextCountShape}
                     className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>NEXT SHAPE ➔</span>
+                    <span>NEXT QUESTION ➔</span>
                   </button>
                 )}
               </div>
@@ -374,8 +463,8 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
               <span className="text-xs font-black text-purple-600 uppercase tracking-wider bg-purple-50 px-2.5 py-1 rounded-full">
                 Activity B — Regular vs Irregular
               </span>
-              <h2 className="text-2xl font-black text-slate-800 mt-1">
-                Is this a REGULAR or IRREGULAR Polygon?
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 mt-1">
+                {classifyShapes[classifyIndex].prompt}
               </h2>
             </div>
             <span className="text-sm font-bold text-slate-500">
@@ -451,8 +540,8 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
               <span className="text-xs font-black text-purple-600 uppercase tracking-wider bg-purple-50 px-2.5 py-1 rounded-full">
                 Activity C — Orientation Invariance
               </span>
-              <h2 className="text-2xl font-black text-slate-800 mt-1">
-                Same Shape, Different Position!
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 mt-1">
+                {rotateShapes[rotateIndex].prompt}
               </h2>
             </div>
             <span className="text-sm font-bold text-slate-500">
@@ -517,13 +606,90 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
         </div>
       )}
 
+      {/* ACTIVITY D — Polygon Detective (Clue-Based Riddles) */}
+      {activeTab === 'detective' && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border-3 border-purple-200 shadow-md space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-purple-100 pb-4">
+            <div>
+              <span className="text-xs font-black text-purple-600 uppercase tracking-wider bg-purple-50 px-2.5 py-1 rounded-full flex items-center gap-1">
+                <Search className="w-3.5 h-3.5 text-purple-600" /> Activity D — Polygon Detective
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 mt-1">
+                Solve Piko's Clue Riddle!
+              </h2>
+            </div>
+            <span className="text-sm font-bold text-slate-500">
+              Clue {detectiveIndex + 1} of {detectiveClues.length}
+            </span>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-5 rounded-2xl border-2 border-purple-200 shadow-xs flex items-center gap-4">
+            <PikoMascot mood="thinking" size="sm" />
+            <div>
+              <span className="text-[11px] font-black text-purple-900 bg-purple-200 px-2 py-0.5 rounded-full uppercase">
+                Detective Clue
+              </span>
+              <p className="text-base sm:text-lg font-black text-slate-800 italic mt-1">
+                {detectiveClues[detectiveIndex].clue}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-700">
+              Tap the correct polygon that matches the clue:
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {detectiveClues[detectiveIndex].options.map((opt) => {
+                const isSelected = detectiveChoice === opt.key;
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => handleDetectiveChoice(opt.key)}
+                    className={`p-4 rounded-3xl border-3 text-center transition-all flex flex-col items-center justify-between gap-3 cursor-pointer ${
+                      isSelected
+                        ? 'border-purple-600 bg-purple-50 shadow-lg scale-105 ring-4 ring-purple-200'
+                        : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <PolygonSvgPreview type={opt.key as any} size={85} />
+                    <div>
+                      <h4 className="font-extrabold text-slate-800 text-sm">{opt.name}</h4>
+                      <span className="text-[11px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200 inline-block mt-1">
+                        {opt.sides} Sides
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {detectiveFeedback && (
+              <p className="p-3 bg-purple-50 border-2 border-purple-200 rounded-2xl text-xs sm:text-sm font-extrabold text-purple-950 text-center animate-bounce-subtle">
+                {detectiveFeedback}
+              </p>
+            )}
+
+            {detectiveChoice && detectiveIndex < detectiveClues.length - 1 && (
+              <button
+                onClick={handleNextDetective}
+                className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>NEXT CLUE ➔</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Lab Completion Banner */}
       {allLabComplete && (
         <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-bounce-subtle">
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="text-2xl font-black">DISCOVERY LAB COMPLETE! LET'S CREATE PATTERNS!</h3>
             <p className="text-purple-100 text-sm font-medium">
-              You understand polygon characteristics and orientations! Ready for the studio?
+              You understand polygon characteristics and solved all detective clues! Ready for the studio?
             </p>
           </div>
 
