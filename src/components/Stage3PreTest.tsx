@@ -3,7 +3,7 @@ import type { TestResult } from '../types/game';
 import { PRE_TEST_QUESTIONS } from '../data/preTestQuestions';
 import { PikoMascot } from './PikoMascot';
 import { PolygonSvgPreview } from './PolygonSvgPreview';
-import { ArrowRight, Compass, HelpCircle, Sparkles, Check } from 'lucide-react';
+import { ArrowRight, HelpCircle, Sparkles, Check, ShieldCheck } from 'lucide-react';
 
 interface Stage3PreTestProps {
   studentName: string;
@@ -62,9 +62,9 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-4">
+    <div className="max-w-4xl mx-auto px-4 pt-6 sm:pt-8 pb-6 space-y-4">
       {/* Playful Explorer Header Banner */}
-      <div className="bg-gradient-to-r from-blue-500 via-teal-500 to-indigo-600 text-white p-4 sm:p-5 rounded-3xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 text-white p-4 sm:p-5 rounded-3xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 relative overflow-hidden">
         {/* Subtle decorative background polygons */}
         <div className="absolute -right-4 -bottom-4 w-24 h-24 text-white/10 pointer-events-none">
           <svg viewBox="0 0 100 100" fill="currentColor">
@@ -78,46 +78,46 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
           </div>
 
           <div>
-            <div className="inline-flex items-center gap-1.5 bg-white/20 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider mb-1">
-              <Compass className="w-3.5 h-3.5 text-amber-300" /> Stage 3: Polygon Challenge
+            <div className="inline-flex items-center gap-1.5 bg-amber-400 text-amber-950 px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider mb-1 shadow-xs">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-950" /> POLYGON CHALLENGE
             </div>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight">PRE-TEST: THE STARTING CHALLENGE</h1>
             <p className="text-blue-100 text-xs sm:text-sm font-medium">
-              Welcome, Explorer <span className="font-extrabold text-amber-300 underline">{studentName}</span>! Let's see what shapes you recognise!
+              Let's see what you already know, Explorer <span className="font-extrabold text-amber-300 underline">{studentName}</span>! Do your best!
             </p>
           </div>
         </div>
 
         <div className="bg-white/15 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/20 text-center shrink-0">
-          <span className="text-[10px] uppercase text-blue-200 font-bold block">Question</span>
-          <span className="text-xl font-black text-amber-300">
+          <span className="text-[10px] uppercase text-blue-200 font-bold block">Progress</span>
+          <span className="text-xl font-black text-white">
             {currentIndex + 1} <span className="text-xs text-blue-200 font-normal">/ {PRE_TEST_QUESTIONS.length}</span>
           </span>
         </div>
       </div>
 
-      {/* Progress Indicator Bar */}
+      {/* Progress Bar */}
       <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden p-0.5 border border-slate-300 shadow-inner">
         <div
-          className="bg-gradient-to-r from-blue-500 via-teal-400 to-indigo-500 h-full rounded-full transition-all duration-300"
+          className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 h-full rounded-full transition-all duration-300"
           style={{ width: `${((currentIndex + 1) / PRE_TEST_QUESTIONS.length) * 100}%` }}
         />
       </div>
 
       {/* Main Question Card Container */}
-      <div className="bg-white rounded-3xl p-5 sm:p-7 border-3 border-indigo-200 shadow-md space-y-5 relative">
+      <div className="bg-white rounded-3xl p-5 sm:p-7 border-3 border-indigo-200 shadow-md space-y-4 relative">
         <div className="flex items-center justify-between gap-3 border-b border-indigo-100 pb-3">
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center shrink-0">
-              {currentQ.id}
+              Q{currentQ.id}
             </span>
-            <span className="text-xs font-black text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-wider">
-              {currentQ.type === 'pattern' ? 'Pattern Challenge' : 'Polygon Challenge'}
+            <span className="text-xs font-black text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-wider border border-indigo-200">
+              {currentQ.type}
             </span>
           </div>
 
           <span className="text-xs font-extrabold text-slate-400">
-            {currentIndex + 1} of {PRE_TEST_QUESTIONS.length}
+            Question {currentIndex + 1} of {PRE_TEST_QUESTIONS.length}
           </span>
         </div>
 
@@ -126,13 +126,13 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
           {currentQ.question}
         </h2>
 
-        {/* Visual Illustration Panel if present */}
+        {/* Compact Proportional Visual Illustration Panel if present */}
         {currentQ.illustrationType && (
-          <div className="flex justify-center my-3 bg-gradient-to-br from-indigo-50/60 to-purple-50/60 p-4 rounded-2xl border border-indigo-100 shadow-xs">
+          <div className="flex items-center justify-center gap-4 my-2 bg-gradient-to-br from-slate-50 to-indigo-50/50 p-3 sm:p-4 rounded-2xl border border-indigo-100 shadow-xs relative">
             <PolygonSvgPreview
               type={currentQ.illustrationType}
               rotation={currentQ.rotationDegrees || 0}
-              size={160}
+              size={140}
             />
           </div>
         )}
@@ -141,7 +141,7 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
         {currentQ.type === 'pattern' && currentQ.patternData && (
           <div className="space-y-3 bg-gradient-to-r from-blue-50/70 to-indigo-50/70 p-4 rounded-2xl border-2 border-indigo-200">
             <h3 className="text-xs font-extrabold text-indigo-900 flex items-center gap-1.5">
-              <HelpCircle className="w-4 h-4 text-indigo-600" /> Complete the Pattern Sequence:
+              <HelpCircle className="w-4 h-4 text-indigo-600" /> Pattern Sequence:
             </h3>
 
             {/* Sequence Row */}
@@ -196,7 +196,7 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <PolygonSvgPreview type={opt.polygon} size={50} fillColor={opt.color} />
+                      <PolygonSvgPreview type={opt.polygon} size={48} fillColor={opt.color} />
                       <span className="font-extrabold text-slate-800 text-xs sm:text-sm">{opt.label}</span>
                     </div>
                     <div
@@ -247,7 +247,7 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Choice registered!
               </span>
             ) : (
-              'Select an answer to unlock Next'
+              'Please select an answer to continue'
             )}
           </p>
 
@@ -260,7 +260,7 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed'
             }`}
           >
-            <span>{isLastQuestion ? 'FINISH CHALLENGE' : 'NEXT QUESTION'}</span>
+            <span>{isLastQuestion ? 'FINISH TEST' : 'NEXT QUESTION'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -271,9 +271,9 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 border-4 border-indigo-400 shadow-2xl animate-bounce-subtle">
             <PikoMascot mood="celebrating" size="md" />
-            <h3 className="text-2xl font-black text-slate-800">CHALLENGE COMPLETED!</h3>
+            <h3 className="text-2xl font-black text-slate-800">PRE-TEST COMPLETED!</h3>
             <p className="text-slate-600 text-xs sm:text-sm font-medium">
-              Great effort, Explorer <span className="font-extrabold text-indigo-600">{studentName}</span>! Your pre-test responses are saved. Now let's watch the learning video together!
+              Great effort, Explorer <span className="font-extrabold text-indigo-600">{studentName}</span>! Your responses have been saved. Now let's start your learning video adventure!
             </p>
 
             <button
