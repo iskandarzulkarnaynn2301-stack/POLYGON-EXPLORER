@@ -43,7 +43,6 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
   };
 
   const handleFinalSubmit = () => {
-    // Calculate total score automatically
     let score = 0;
     PRE_TEST_QUESTIONS.forEach((q) => {
       if (answers[q.id] === q.correctOptionId) {
@@ -62,7 +61,7 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 pt-6 sm:pt-8 pb-6 space-y-4">
+    <div className="max-w-4xl mx-auto px-4 pt-4 pb-6 space-y-4">
       {/* Playful Explorer Header Banner */}
       <div className="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 text-white p-4 sm:p-5 rounded-3xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 relative overflow-hidden">
         {/* Subtle decorative background polygons */}
@@ -73,10 +72,6 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:block shrink-0">
-            <PikoMascot mood="happy" size="sm" />
-          </div>
-
           <div>
             <div className="inline-flex items-center gap-1.5 bg-amber-400 text-amber-950 px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider mb-1 shadow-xs">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-950" /> POLYGON CHALLENGE
@@ -122,18 +117,44 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
         </div>
 
         {/* Question Title Text */}
-        <h2 className="text-lg sm:text-2xl font-extrabold text-slate-800 leading-snug">
+        <h2 className="text-lg sm:text-xl font-extrabold text-slate-800 leading-snug">
           {currentQ.question}
         </h2>
 
-        {/* Compact Proportional Visual Illustration Panel if present */}
+        {/* Integrated Illustrated Game Scene with Piko and Standalone Polygon (No White Card) */}
         {currentQ.illustrationType && (
-          <div className="flex items-center justify-center gap-4 my-2 bg-gradient-to-br from-slate-50 to-indigo-50/50 p-3 sm:p-4 rounded-2xl border border-indigo-100 shadow-xs relative">
-            <PolygonSvgPreview
-              type={currentQ.illustrationType}
-              rotation={currentQ.rotationDegrees || 0}
-              size={140}
-            />
+          <div className="relative my-2 bg-gradient-to-r from-emerald-50 via-teal-50 to-indigo-50 p-4 rounded-3xl border-2 border-teal-200 shadow-inner overflow-hidden flex flex-col sm:flex-row items-center justify-around gap-4 min-h-[160px]">
+            {/* Background floating pastel geometry accents */}
+            <div className="absolute top-2 left-3 w-8 h-8 text-emerald-200/60 pointer-events-none">
+              <svg viewBox="0 0 100 100" fill="currentColor">
+                <polygon points="50,5 93,25 93,75 50,95 7,75 7,25" />
+              </svg>
+            </div>
+            <div className="absolute bottom-2 right-4 w-10 h-10 text-indigo-200/60 pointer-events-none">
+              <svg viewBox="0 0 100 100" fill="currentColor">
+                <polygon points="30,10 70,10 90,30 90,70 70,90 30,90 10,70 10,30" />
+              </svg>
+            </div>
+
+            {/* Piko Explorer Mascot Integrated Scene */}
+            <div className="flex items-center gap-3 shrink-0 z-10">
+              <PikoMascot mood="thinking" size="md" />
+              <div className="bg-white/90 backdrop-blur-xs p-2.5 rounded-2xl border border-teal-200 shadow-xs max-w-[160px] text-center hidden sm:block">
+                <span className="text-[11px] font-black text-teal-900 block uppercase">Piko Explorer</span>
+                <p className="text-[11px] font-medium text-slate-600 mt-0.5 leading-tight">
+                  Look closely at this shape's sides!
+                </p>
+              </div>
+            </div>
+
+            {/* Standalone Target Polygon Vector (Transparent background) */}
+            <div className="relative z-10 flex items-center justify-center p-2">
+              <PolygonSvgPreview
+                type={currentQ.illustrationType}
+                rotation={currentQ.rotationDegrees || 0}
+                size={135}
+              />
+            </div>
           </div>
         )}
 
