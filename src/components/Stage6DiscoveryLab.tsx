@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PolygonSvgPreview } from './PolygonSvgPreview';
 import { PikoMascot } from './PikoMascot';
 import { getPolygonPoints, pointsToSvgPointsString } from '../utils/geometry';
-import { ArrowRight, CheckCircle2, Microscope, RotateCw, Check, X, Search } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Microscope, RotateCw, Check, X, Search, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface Stage6DiscoveryLabProps {
   onCompleteDiscovery: () => void;
@@ -31,7 +31,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
   ];
   const [clickedElements, setClickedElements] = useState<number[]>([]);
   const [countFeedback, setCountFeedback] = useState<string>('');
-  const [countSuccess, setCountSuccess] = useState(false);
+  const [countState, setCountState] = useState<'neutral' | 'correct' | 'incorrect'>('neutral');
 
   // Activity B state
   const [classifyIndex, setClassifyIndex] = useState(0);
@@ -70,7 +70,9 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     }
   ];
   const [selectedClass, setSelectedClass] = useState<boolean | null>(null);
+  const [classifyState, setClassifyState] = useState<'neutral' | 'correct' | 'incorrect'>('neutral');
   const [classifyFeedback, setClassifyFeedback] = useState<string>('');
+  const [classifyAttempts, setClassifyAttempts] = useState(0);
 
   // Activity C state
   const [rotateIndex, setRotateIndex] = useState(0);
@@ -83,7 +85,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       correctName: 'Pentagon',
       prompt: 'Which shape is still a regular pentagon after turning?',
       options: ['Pentagon (5 sides)', 'Hexagon (6 sides)', 'Octagon (8 sides)'],
-      explanation: 'Correct! Turning a pentagon around does not change its 5 sides. It is still a Pentagon!'
+      explanation: 'Turning a pentagon around does not change its 5 sides. It is still a Pentagon!'
     },
     {
       id: 'r2',
@@ -93,7 +95,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       correctName: 'Heptagon',
       prompt: 'Did the number of sides change when this polygon was rotated?',
       options: ['Hexagon (6 sides)', 'Heptagon (7 sides)', 'Octagon (8 sides)'],
-      explanation: 'Correct! Rotating a shape does not change its number of sides. It still has 7 sides!'
+      explanation: 'Rotating a shape does not change its number of sides. It still has 7 sides!'
     },
     {
       id: 'r3',
@@ -103,11 +105,13 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       correctName: 'Octagon',
       prompt: 'Find the octagon shown in a different position:',
       options: ['Heptagon (7 sides)', 'Octagon (8 sides)', 'Pentagon (5 sides)'],
-      explanation: 'Correct! Orientation does not affect polygon properties. It has 8 sides, so it is an Octagon!'
+      explanation: 'Orientation does not affect polygon properties. It has 8 sides, so it is an Octagon!'
     }
   ];
   const [rotateSelected, setRotateSelected] = useState<string | null>(null);
+  const [rotateState, setRotateState] = useState<'neutral' | 'correct' | 'incorrect'>('neutral');
   const [rotateFeedback, setRotateFeedback] = useState<string>('');
+  const [rotateAttempts, setRotateAttempts] = useState(0);
 
   // Activity D — Polygon Detective State
   const [detectiveIndex, setDetectiveIndex] = useState(0);
@@ -157,10 +161,13 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     }
   ];
   const [detectiveChoice, setDetectiveChoice] = useState<string | null>(null);
+  const [detectiveState, setDetectiveState] = useState<'neutral' | 'correct' | 'incorrect'>('neutral');
   const [detectiveFeedback, setDetectiveFeedback] = useState<string>('');
+  const [detectiveAttempts, setDetectiveAttempts] = useState(0);
 
   // Activity A Element Click Handler
   const handleElementClick = (idx: number) => {
+    if (countState === 'correct') return;
     if (clickedElements.includes(idx)) {
       setClickedElements(clickedElements.filter((i) => i !== idx));
     } else {
@@ -171,15 +178,17 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
   const verifyCount = () => {
     const currentShape = countShapes[countShapeIndex];
     if (clickedElements.length === currentShape.targetCount) {
-      setCountSuccess(true);
-      setCountFeedback(`Excellent! You counted all ${currentShape.targetCount} ${currentShape.mode} correctly!`);
+      setCountState('correct');
+      setCountFeedback(`Correct! Excellent job! You counted all ${currentShape.targetCount} ${currentShape.mode} correctly!`);
       if (!completedActivities.includes('count')) {
         setCompletedActivities([...completedActivities, 'count']);
       }
     } else if (clickedElements.length < currentShape.targetCount) {
-      setCountFeedback(`Almost there! You counted ${clickedElements.length}. Try to count all ${currentShape.targetCount} ${currentShape.mode}!`);
+      setCountState('incorrect');
+      setCountFeedback(`Not quite! Try again. You counted ${clickedElements.length}. Count all ${currentShape.targetCount} ${currentShape.mode}!`);
     } else {
-      setCountFeedback(`You counted ${clickedElements.length}. Be careful to click each ${currentShape.mode === 'sides' ? 'side' : 'vertex'} only once!`);
+      setCountState('incorrect');
+      setCountFeedback(`Oops! Try again. Be careful to click each ${currentShape.mode === 'sides' ? 'side' : 'vertex'} only once!`);
     }
   };
 
@@ -188,7 +197,7 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
       setCountShapeIndex(countShapeIndex + 1);
       setClickedElements([]);
       setCountFeedback('');
-      setCountSuccess(false);
+      setCountState('neutral');
     }
   };
 
@@ -196,14 +205,25 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
   const handleClassifyChoice = (choiceIsRegular: boolean) => {
     const current = classifyShapes[classifyIndex];
     setSelectedClass(choiceIsRegular);
+    const newAttempts = classifyAttempts + 1;
+    setClassifyAttempts(newAttempts);
 
     if (choiceIsRegular === current.isRegular) {
-      setClassifyFeedback(`Correct! ${current.explanation}`);
+      setClassifyState('correct');
+      setClassifyFeedback(`Correct! Great job! ${current.explanation}`);
       if (!completedActivities.includes('classify')) {
         setCompletedActivities([...completedActivities, 'classify']);
       }
     } else {
-      setClassifyFeedback(`Look carefully! ${current.explanation}`);
+      setClassifyState('incorrect');
+      if (newAttempts === 1) {
+        setClassifyFeedback(`Not quite! Try again. ${current.explanation}`);
+      } else {
+        setClassifyFeedback(`Incorrect. The correct answer is highlighted in green. ${current.explanation}`);
+        if (!completedActivities.includes('classify')) {
+          setCompletedActivities([...completedActivities, 'classify']);
+        }
+      }
     }
   };
 
@@ -211,7 +231,9 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     if (classifyIndex < classifyShapes.length - 1) {
       setClassifyIndex(classifyIndex + 1);
       setSelectedClass(null);
+      setClassifyState('neutral');
       setClassifyFeedback('');
+      setClassifyAttempts(0);
     }
   };
 
@@ -219,14 +241,27 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
   const handleRotateChoice = (opt: string) => {
     const current = rotateShapes[rotateIndex];
     setRotateSelected(opt);
+    const newAttempts = rotateAttempts + 1;
+    setRotateAttempts(newAttempts);
 
-    if (opt.toLowerCase().includes(current.correctName.toLowerCase())) {
-      setRotateFeedback(`Great job! ${current.explanation}`);
+    const isCorrect = opt.toLowerCase().includes(current.correctName.toLowerCase());
+
+    if (isCorrect) {
+      setRotateState('correct');
+      setRotateFeedback(`Correct! Excellent! ${current.explanation}`);
       if (!completedActivities.includes('rotate')) {
         setCompletedActivities([...completedActivities, 'rotate']);
       }
     } else {
-      setRotateFeedback(`Not quite! Count the straight sides carefully. ${current.explanation}`);
+      setRotateState('incorrect');
+      if (newAttempts === 1) {
+        setRotateFeedback(`Not quite! Try again. Count the straight sides carefully.`);
+      } else {
+        setRotateFeedback(`Incorrect. The correct answer is ${current.correctName}. ${current.explanation}`);
+        if (!completedActivities.includes('rotate')) {
+          setCompletedActivities([...completedActivities, 'rotate']);
+        }
+      }
     }
   };
 
@@ -234,7 +269,9 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     if (rotateIndex < rotateShapes.length - 1) {
       setRotateIndex(rotateIndex + 1);
       setRotateSelected(null);
+      setRotateState('neutral');
       setRotateFeedback('');
+      setRotateAttempts(0);
     }
   };
 
@@ -242,14 +279,27 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
   const handleDetectiveChoice = (key: string) => {
     const current = detectiveClues[detectiveIndex];
     setDetectiveChoice(key);
+    const newAttempts = detectiveAttempts + 1;
+    setDetectiveAttempts(newAttempts);
 
-    if (key === current.correctKey) {
-      setDetectiveFeedback(`Great Detective Work! ${current.explanation}`);
+    const isCorrect = key === current.correctKey;
+
+    if (isCorrect) {
+      setDetectiveState('correct');
+      setDetectiveFeedback(`Correct! Great Detective Work! ${current.explanation}`);
       if (!completedActivities.includes('detective')) {
         setCompletedActivities([...completedActivities, 'detective']);
       }
     } else {
-      setDetectiveFeedback(`Keep investigating! ${current.explanation}`);
+      setDetectiveState('incorrect');
+      if (newAttempts === 1) {
+        setDetectiveFeedback(`Not quite! Try again. Read the clue carefully.`);
+      } else {
+        setDetectiveFeedback(`Incorrect. The correct answer is ${current.correctKey.toUpperCase()}. ${current.explanation}`);
+        if (!completedActivities.includes('detective')) {
+          setCompletedActivities([...completedActivities, 'detective']);
+        }
+      }
     }
   };
 
@@ -257,7 +307,9 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     if (detectiveIndex < detectiveClues.length - 1) {
       setDetectiveIndex(detectiveIndex + 1);
       setDetectiveChoice(null);
+      setDetectiveState('neutral');
       setDetectiveFeedback('');
+      setDetectiveAttempts(0);
     }
   };
 
@@ -428,26 +480,50 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
             {/* Verification and Mascot Feedback */}
             <div className="space-y-4">
               <PikoMascot
-                mood={countSuccess ? 'celebrating' : 'thinking'}
+                mood={countState === 'correct' ? 'celebrating' : countState === 'incorrect' ? 'thinking' : 'thinking'}
                 size="md"
                 message={countFeedback || `Tap each corner dot carefully. A ${countShapes[countShapeIndex].name.toLowerCase()} has ${countShapes[countShapeIndex].targetCount} ${countShapes[countShapeIndex].mode}!`}
               />
 
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={verifyCount}
-                  className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-base rounded-2xl shadow-md transition-all cursor-pointer"
+              {countState !== 'neutral' && (
+                <div
+                  className={`p-3 rounded-2xl border-2 flex items-center gap-2 font-bold text-xs sm:text-sm ${
+                    countState === 'correct'
+                      ? 'bg-emerald-50 border-emerald-400 text-emerald-950'
+                      : 'bg-rose-50 border-rose-400 text-rose-950'
+                  }`}
                 >
-                  CHECK MY ANSWER
-                </button>
+                  {countState === 'correct' ? (
+                    <>
+                      <Check className="w-5 h-5 text-emerald-600 shrink-0" />
+                      <span>Correct! Well done!</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                      <span>Not quite! Try again.</span>
+                    </>
+                  )}
+                </div>
+              )}
 
-                {countSuccess && countShapeIndex < countShapes.length - 1 && (
+              <div className="flex flex-col gap-3">
+                {countState !== 'correct' ? (
                   <button
-                    onClick={handleNextCountShape}
-                    className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    onClick={verifyCount}
+                    className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-base rounded-2xl shadow-md transition-all cursor-pointer"
                   >
-                    <span>NEXT QUESTION ➔</span>
+                    CHECK MY ANSWER
                   </button>
+                ) : (
+                  countShapeIndex < countShapes.length - 1 && (
+                    <button
+                      onClick={handleNextCountShape}
+                      className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>NEXT QUESTION ➔</span>
+                    </button>
+                  )
                 )}
               </div>
             </div>
@@ -486,40 +562,71 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
             {/* Selection Buttons and Explanation */}
             <div className="space-y-4">
               <PikoMascot
-                mood={selectedClass !== null ? 'happy' : 'thinking'}
+                mood={classifyState === 'correct' ? 'celebrating' : classifyState === 'incorrect' ? 'thinking' : 'thinking'}
                 size="md"
                 message={classifyFeedback || "Remember: Regular polygons have all straight sides EQUAL in length!"}
               />
 
               <div className="grid grid-cols-2 gap-3">
                 <button
+                  disabled={classifyState === 'correct' || classifyAttempts >= 2}
                   onClick={() => handleClassifyChoice(true)}
                   className={`p-4 rounded-2xl border-3 font-extrabold text-sm transition-all flex flex-col items-center justify-center gap-2 cursor-pointer ${
-                    selectedClass === true
-                      ? 'border-emerald-600 bg-emerald-100 text-emerald-950 shadow-md'
+                    classifyState !== 'neutral' && classifyShapes[classifyIndex].isRegular === true
+                      ? 'border-emerald-600 bg-emerald-100 text-emerald-950 shadow-md ring-2 ring-emerald-400'
+                      : selectedClass === true && classifyState === 'incorrect'
+                      ? 'border-rose-600 bg-rose-100 text-rose-950 shadow-md'
                       : 'border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 text-slate-800'
                   }`}
                 >
-                  <Check className="w-6 h-6 text-emerald-600" />
+                  <div className="flex items-center gap-1">
+                    {classifyState !== 'neutral' && classifyShapes[classifyIndex].isRegular === true ? (
+                      <Check className="w-6 h-6 text-emerald-600" />
+                    ) : selectedClass === true && classifyState === 'incorrect' ? (
+                      <X className="w-6 h-6 text-rose-600" />
+                    ) : (
+                      <Check className="w-6 h-6 text-emerald-600" />
+                    )}
+                  </div>
                   <span>REGULAR POLYGON</span>
                   <span className="text-[10px] text-slate-500 font-normal">(Equal side lengths)</span>
                 </button>
 
                 <button
+                  disabled={classifyState === 'correct' || classifyAttempts >= 2}
                   onClick={() => handleClassifyChoice(false)}
                   className={`p-4 rounded-2xl border-3 font-extrabold text-sm transition-all flex flex-col items-center justify-center gap-2 cursor-pointer ${
-                    selectedClass === false
-                      ? 'border-amber-600 bg-amber-100 text-amber-950 shadow-md'
+                    classifyState !== 'neutral' && classifyShapes[classifyIndex].isRegular === false
+                      ? 'border-emerald-600 bg-emerald-100 text-emerald-950 shadow-md ring-2 ring-emerald-400'
+                      : selectedClass === false && classifyState === 'incorrect'
+                      ? 'border-rose-600 bg-rose-100 text-rose-950 shadow-md'
                       : 'border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 text-slate-800'
                   }`}
                 >
-                  <X className="w-6 h-6 text-amber-600" />
+                  <div className="flex items-center gap-1">
+                    {classifyState !== 'neutral' && classifyShapes[classifyIndex].isRegular === false ? (
+                      <Check className="w-6 h-6 text-emerald-600" />
+                    ) : selectedClass === false && classifyState === 'incorrect' ? (
+                      <X className="w-6 h-6 text-rose-600" />
+                    ) : (
+                      <X className="w-6 h-6 text-amber-600" />
+                    )}
+                  </div>
                   <span>IRREGULAR POLYGON</span>
                   <span className="text-[10px] text-slate-500 font-normal">(Unequal side lengths)</span>
                 </button>
               </div>
 
-              {selectedClass !== null && classifyIndex < classifyShapes.length - 1 && (
+              {classifyState === 'incorrect' && classifyAttempts === 1 && (
+                <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-2xl flex items-center justify-between text-xs font-bold text-amber-950">
+                  <span className="flex items-center gap-1">
+                    <RefreshCw className="w-4 h-4 text-amber-600" /> Try Again!
+                  </span>
+                  <span>1 attempt remaining</span>
+                </div>
+              )}
+
+              {(classifyState === 'correct' || classifyAttempts >= 2) && classifyIndex < classifyShapes.length - 1 && (
                 <button
                   onClick={handleNextClassify}
                   className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -571,29 +678,50 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
             {/* Answer Options */}
             <div className="space-y-4">
               <PikoMascot
-                mood={rotateSelected ? 'happy' : 'thinking'}
+                mood={rotateState === 'correct' ? 'celebrating' : rotateState === 'incorrect' ? 'thinking' : 'thinking'}
                 size="md"
                 message={rotateFeedback || "Count the straight sides! Rotating a polygon does NOT change its name or number of sides!"}
               />
 
               <div className="space-y-2">
-                {rotateShapes[rotateIndex].options.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => handleRotateChoice(opt)}
-                    className={`w-full p-4 rounded-2xl border-3 text-left font-extrabold text-base transition-all flex items-center justify-between cursor-pointer ${
-                      rotateSelected === opt
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-900 shadow-md'
-                        : 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-slate-50 text-slate-800'
-                    }`}
-                  >
-                    <span>{opt}</span>
-                    {rotateSelected === opt && <CheckCircle2 className="w-5 h-5 text-indigo-600" />}
-                  </button>
-                ))}
+                {rotateShapes[rotateIndex].options.map((opt) => {
+                  const isCorrectOpt = opt.toLowerCase().includes(rotateShapes[rotateIndex].correctName.toLowerCase());
+                  const isSelectedOpt = rotateSelected === opt;
+
+                  let btnStyle = 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-slate-50 text-slate-800';
+                  if (rotateState !== 'neutral') {
+                    if (isCorrectOpt) {
+                      btnStyle = 'border-emerald-600 bg-emerald-100 text-emerald-950 shadow-md ring-2 ring-emerald-400 font-black';
+                    } else if (isSelectedOpt && !isCorrectOpt) {
+                      btnStyle = 'border-rose-600 bg-rose-100 text-rose-950 shadow-md';
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={opt}
+                      disabled={rotateState === 'correct' || rotateAttempts >= 2}
+                      onClick={() => handleRotateChoice(opt)}
+                      className={`w-full p-4 rounded-2xl border-3 text-left font-extrabold text-base transition-all flex items-center justify-between cursor-pointer ${btnStyle}`}
+                    >
+                      <span>{opt}</span>
+                      {rotateState !== 'neutral' && isCorrectOpt && <Check className="w-5 h-5 text-emerald-600 stroke-[3]" />}
+                      {rotateState !== 'neutral' && isSelectedOpt && !isCorrectOpt && <X className="w-5 h-5 text-rose-600 stroke-[3]" />}
+                    </button>
+                  );
+                })}
               </div>
 
-              {rotateSelected && rotateIndex < rotateShapes.length - 1 && (
+              {rotateState === 'incorrect' && rotateAttempts === 1 && (
+                <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-2xl flex items-center justify-between text-xs font-bold text-amber-950">
+                  <span className="flex items-center gap-1">
+                    <RefreshCw className="w-4 h-4 text-amber-600" /> Try Again!
+                  </span>
+                  <span>1 attempt remaining</span>
+                </div>
+              )}
+
+              {(rotateState === 'correct' || rotateAttempts >= 2) && rotateIndex < rotateShapes.length - 1 && (
                 <button
                   onClick={handleNextRotate}
                   className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -642,17 +770,36 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {detectiveClues[detectiveIndex].options.map((opt) => {
-                const isSelected = detectiveChoice === opt.key;
+                const isCorrectOpt = opt.key === detectiveClues[detectiveIndex].correctKey;
+                const isSelectedOpt = detectiveChoice === opt.key;
+
+                let cardStyle = 'border-slate-200 bg-white hover:border-purple-300 hover:bg-slate-50';
+                if (detectiveState !== 'neutral') {
+                  if (isCorrectOpt) {
+                    cardStyle = 'border-emerald-600 bg-emerald-50 shadow-lg ring-4 ring-emerald-300';
+                  } else if (isSelectedOpt && !isCorrectOpt) {
+                    cardStyle = 'border-rose-600 bg-rose-50 shadow-md';
+                  }
+                }
+
                 return (
                   <button
                     key={opt.key}
+                    disabled={detectiveState === 'correct' || detectiveAttempts >= 2}
                     onClick={() => handleDetectiveChoice(opt.key)}
-                    className={`p-4 rounded-3xl border-3 text-center transition-all flex flex-col items-center justify-between gap-3 cursor-pointer ${
-                      isSelected
-                        ? 'border-purple-600 bg-purple-50 shadow-lg scale-105 ring-4 ring-purple-200'
-                        : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-slate-50'
-                    }`}
+                    className={`p-4 rounded-3xl border-3 text-center transition-all flex flex-col items-center justify-between gap-3 cursor-pointer relative ${cardStyle}`}
                   >
+                    {detectiveState !== 'neutral' && isCorrectOpt && (
+                      <div className="absolute top-2 right-2 bg-emerald-500 text-white rounded-full p-1 shadow-xs">
+                        <Check className="w-4 h-4 stroke-[3]" />
+                      </div>
+                    )}
+                    {detectiveState !== 'neutral' && isSelectedOpt && !isCorrectOpt && (
+                      <div className="absolute top-2 right-2 bg-rose-500 text-white rounded-full p-1 shadow-xs">
+                        <X className="w-4 h-4 stroke-[3]" />
+                      </div>
+                    )}
+
                     <PolygonSvgPreview type={opt.key as any} size={85} />
                     <div>
                       <h4 className="font-extrabold text-slate-800 text-sm">{opt.name}</h4>
@@ -666,12 +813,18 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
             </div>
 
             {detectiveFeedback && (
-              <p className="p-3 bg-purple-50 border-2 border-purple-200 rounded-2xl text-xs sm:text-sm font-extrabold text-purple-950 text-center animate-bounce-subtle">
+              <p
+                className={`p-3 border-2 rounded-2xl text-xs sm:text-sm font-extrabold text-center ${
+                  detectiveState === 'correct'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                    : 'bg-rose-50 border-rose-300 text-rose-950'
+                }`}
+              >
                 {detectiveFeedback}
               </p>
             )}
 
-            {detectiveChoice && detectiveIndex < detectiveClues.length - 1 && (
+            {(detectiveState === 'correct' || detectiveAttempts >= 2) && detectiveIndex < detectiveClues.length - 1 && (
               <button
                 onClick={handleNextDetective}
                 className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
