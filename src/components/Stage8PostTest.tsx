@@ -5,6 +5,7 @@ import { HoneycombCanvasQ10 } from './HoneycombCanvasQ10';
 import { PikoMascot } from './PikoMascot';
 import { PolygonSvgPreview } from './PolygonSvgPreview';
 import { ArrowRight, CheckCircle2, ShieldCheck, XCircle } from 'lucide-react';
+import { audioSystem } from '../utils/audio';
 
 interface Stage8PostTestProps {
   studentName: string;
@@ -37,11 +38,21 @@ export const Stage8PostTest: React.FC<Stage8PostTestProps> = ({
   const handleSubmitAnswer = () => {
     if (!selectedOption) return;
     setSubmittedCurrent(true);
+    if (selectedOption === currentQ.correctOptionId) {
+      audioSystem.playSfx('correct');
+    } else {
+      audioSystem.playSfx('incorrect');
+    }
   };
 
   const handleQ10Evaluation = (isCorrect: boolean) => {
     setQ10Passed(isCorrect);
     setSubmittedCurrent(true);
+    if (isCorrect) {
+      audioSystem.playSfx('correct');
+    } else {
+      audioSystem.playSfx('incorrect');
+    }
     setAnswers((prev) => ({
       ...prev,
       10: isCorrect ? 'honeycomb-pass' : 'honeycomb-fail'

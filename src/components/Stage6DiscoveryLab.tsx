@@ -3,6 +3,7 @@ import { PolygonSvgPreview } from './PolygonSvgPreview';
 import { PikoMascot } from './PikoMascot';
 import { getPolygonPoints, pointsToSvgPointsString } from '../utils/geometry';
 import { ArrowRight, CheckCircle2, Microscope, RotateCw, Check, X, Search } from 'lucide-react';
+import { audioSystem } from '../utils/audio';
 
 interface Stage6DiscoveryLabProps {
   onCompleteDiscovery: () => void;
@@ -175,9 +176,11 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
   const verifyCount = () => {
     const currentShape = countShapes[countShapeIndex];
     if (clickedElements.length === currentShape.targetCount) {
+      audioSystem.playSfx('correct');
       setCountState('correct');
       setCountFeedback(`Correct! Excellent job! You counted all ${currentShape.targetCount} ${currentShape.mode} correctly!`);
     } else {
+      audioSystem.playSfx('incorrect');
       setCountState('incorrect');
       setCountFeedback(`Notice: A ${currentShape.name} has exactly ${currentShape.targetCount} ${currentShape.mode}.`);
     }
@@ -203,9 +206,11 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     setSelectedClass(choiceIsRegular);
 
     if (choiceIsRegular === current.isRegular) {
+      audioSystem.playSfx('correct');
       setClassifyState('correct');
       setClassifyFeedback(`Correct! ${current.explanation}`);
     } else {
+      audioSystem.playSfx('incorrect');
       setClassifyState('incorrect');
       const correctName = current.isRegular ? 'Regular Polygon' : 'Irregular Polygon';
       setClassifyFeedback(`Incorrect. The correct answer is ${correctName}. ${current.explanation}`);
@@ -234,9 +239,11 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     const isCorrect = opt.toLowerCase().includes(current.correctName.toLowerCase());
 
     if (isCorrect) {
+      audioSystem.playSfx('correct');
       setRotateState('correct');
       setRotateFeedback(`Correct! Excellent! ${current.explanation}`);
     } else {
+      audioSystem.playSfx('incorrect');
       setRotateState('incorrect');
       setRotateFeedback(`Incorrect. The correct answer is ${current.correctName}. ${current.explanation}`);
     }
@@ -264,9 +271,11 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
     const isCorrect = key === current.correctKey;
 
     if (isCorrect) {
+      audioSystem.playSfx('correct');
       setDetectiveState('correct');
       setDetectiveFeedback(`Correct! Great Detective Work! ${current.explanation}`);
     } else {
+      audioSystem.playSfx('incorrect');
       setDetectiveState('incorrect');
       const correctOptName = current.options.find((o) => o.key === current.correctKey)?.name || current.correctKey;
       setDetectiveFeedback(`Incorrect. The correct shape is ${correctOptName}. ${current.explanation}`);

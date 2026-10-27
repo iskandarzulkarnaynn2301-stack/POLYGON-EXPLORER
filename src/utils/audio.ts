@@ -7,6 +7,7 @@ class AudioSystem {
   private isMusicPlaying: boolean = false;
   private musicIntervalId: number | null = null;
   private isVideoPlaying: boolean = false;
+  private isSpeechActive: boolean = false;
 
   constructor() {
     // Lazy init AudioContext on first user gesture
@@ -56,7 +57,7 @@ class AudioSystem {
   }
 
   public startMusic() {
-    if (!this.musicEnabled || this.isMusicPlaying || this.isVideoPlaying) return;
+    if (!this.musicEnabled || this.isMusicPlaying || this.isVideoPlaying || this.isSpeechActive) return;
     const ctx = this.getAudioContext();
     if (!ctx) return;
 
@@ -66,7 +67,7 @@ class AudioSystem {
     const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 440.00, 392.00];
 
     const playMelodyNote = () => {
-      if (!this.isMusicPlaying || !this.musicEnabled || this.isVideoPlaying) return;
+      if (!this.isMusicPlaying || !this.musicEnabled || this.isVideoPlaying || this.isSpeechActive) return;
       try {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -196,14 +197,27 @@ class AudioSystem {
   public speakText(text: string, onEnd?: () => void) {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
+      this.isSpeechActive = true;
+      this.stopMusic();
+
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
       utterance.rate = 0.9;
-      if (onEnd) {
-        utterance.onend = onEnd;
-      }
+
+      const finishSpeech = () => {
+        this.isSpeechActive = false;
+        if (this.musicEnabled && !this.isVideoPlaying) {
+          this.startMusic();
+        }
+        if (onEnd) onEnd();
+      };
+
+      utterance.onend = finishSpeech;
+      utterance.onerror = finishSpeech;
+
       window.speechSynthesis.speak(utterance);
     } else {
+      this.isSpeechActive = false;
       if (onEnd) onEnd();
     }
   }

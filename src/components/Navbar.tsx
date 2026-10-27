@@ -75,9 +75,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const isUnlocked = (stageId: GameStage, index: number) => {
     if (stageId === 'name_entry' || stageId === 'home') return true;
-    if (completedStages.includes(stageId) || currentStage === stageId) return true;
-    const currentIndex = STAGES.findIndex((s) => s.id === currentStage);
-    return index <= currentIndex + 1;
+    if (completedStages.includes(stageId)) return true;
+    // Stage is unlocked if all previous stages in sequence have been completed
+    return STAGES.slice(0, index).every((prev) => completedStages.includes(prev.id));
   };
 
   return (
@@ -161,19 +161,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Visual Map / Stage Flow Navigation */}
         <nav className="w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-          <div className="flex items-center gap-1 min-w-max">
+          <div className="flex items-center gap-1.5 min-w-max py-0.5">
             {STAGES.map((stage, idx) => {
               const active = currentStage === stage.id;
               const completed = completedStages.includes(stage.id);
               const unlocked = isUnlocked(stage.id, idx);
 
-              let btnStyle = 'bg-slate-100 text-slate-400 border-transparent cursor-not-allowed';
+              let btnStyle = 'bg-slate-100 text-slate-400 border-slate-200 opacity-60 cursor-not-allowed';
               if (active) {
-                btnStyle = 'bg-indigo-600 text-white border-indigo-700 shadow-md scale-105';
+                btnStyle = 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 font-black';
               } else if (completed) {
-                btnStyle = 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 cursor-pointer';
+                btnStyle = 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100 cursor-pointer font-bold';
               } else if (unlocked) {
-                btnStyle = 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer';
+                btnStyle = 'bg-white text-slate-800 border-slate-300 hover:bg-indigo-50 hover:text-indigo-700 cursor-pointer font-bold';
               }
 
               return (
@@ -181,15 +181,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={stage.id}
                   disabled={!unlocked}
                   onClick={() => {
+                    if (!unlocked) {
+                      audioSystem.playSfx('incorrect');
+                      return;
+                    }
                     audioSystem.playSfx('click');
                     onNavigate(stage.id);
                   }}
-                  className={`px-2 py-1 rounded-xl border-2 text-[11px] font-bold transition-all flex items-center gap-1 shrink-0 ${btnStyle}`}
+                  title={!unlocked ? 'Complete the previous stage first!' : stage.label}
+                  className={`px-3 py-1.5 rounded-xl border-2 text-xs sm:text-sm transition-all flex items-center gap-1.5 shrink-0 ${btnStyle}`}
                 >
-                  <span className="text-[9px] opacity-80">{stage.number}</span>
-                  <span className="hidden sm:inline">{stage.label}</span>
-                  <span className="sm:hidden">{stage.shortLabel}</span>
-                  {completed && !active && <CheckCircle className="w-3 h-3 text-emerald-600" />}
+                  <span className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded-md ${
+                    active ? 'bg-indigo-700 text-white' : completed ? 'bg-emerald-200 text-emerald-900' : 'bg-slate-200 text-slate-700'
+                  }`}>
+                    {stage.number}
+                  </span>
+                  <span>{stage.label}</span>
+                  {completed && !active && <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
                 </button>
               );
             })}

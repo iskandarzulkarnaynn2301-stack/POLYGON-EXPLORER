@@ -28,10 +28,22 @@ export function App() {
   });
 
   const navigateTo = (stage: GameStage) => {
-    setGameState((prev) => ({
-      ...prev,
-      currentStage: stage
-    }));
+    // Check if target stage is allowed (either completed, current, or its predecessors are completed)
+    const stageSequence: GameStage[] = [
+      'name_entry', 'home', 'pre_test', 'pre_test_results',
+      'video', 'meet', 'memory', 'explore', 'workshop', 'post_test', 'results'
+    ];
+    const targetIdx = stageSequence.indexOf(stage);
+    const canNavigate = targetIdx <= 1 ||
+      gameState.completedStages.includes(stage) ||
+      stageSequence.slice(0, targetIdx).every((s) => gameState.completedStages.includes(s));
+
+    if (canNavigate) {
+      setGameState((prev) => ({
+        ...prev,
+        currentStage: stage
+      }));
+    }
   };
 
   const markStageCompleted = (stage: GameStage) => {
