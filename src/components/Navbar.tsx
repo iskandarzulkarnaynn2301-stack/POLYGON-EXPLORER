@@ -32,22 +32,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   onChangeName
 }) => {
   return (
-    <header className="bg-white/90 backdrop-blur-md border-b-4 border-emerald-300 sticky top-0 z-40 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+    <header className="bg-white/95 backdrop-blur-md border-b-2 border-emerald-300 sticky top-0 z-40 shadow-xs">
+      <div className="max-w-7xl mx-auto px-4 py-1.5 flex flex-wrap items-center justify-between gap-2">
         {/* Brand logo & title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => studentName ? onNavigate('home') : onNavigate('name_entry')}
             className="flex items-center gap-2 group text-left cursor-pointer focus:outline-none"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-400 to-teal-500 flex items-center justify-center text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-400 to-teal-500 flex items-center justify-center text-white font-black text-base shadow-sm group-hover:scale-105 transition-transform">
               P
             </div>
             <div>
-              <h1 className="text-lg font-black text-slate-800 tracking-tight leading-none group-hover:text-emerald-600 transition-colors">
+              <h1 className="text-sm sm:text-base font-black text-slate-800 tracking-tight leading-none group-hover:text-emerald-600 transition-colors">
                 POLYGON EXPLORER
               </h1>
-              <span className="text-xs font-medium text-emerald-600 tracking-wide uppercase">
+              <span className="text-[10px] font-bold text-emerald-600 tracking-wide uppercase">
                 The Adventure of Polygonia
               </span>
             </div>
@@ -55,15 +55,15 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Pupil badge & actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2">
           {studentName ? (
-            <div className="flex items-center gap-2 bg-emerald-50 border-2 border-emerald-200 px-3 py-1.5 rounded-full">
-              <User className="w-4 h-4 text-emerald-600" />
-              <span className="font-bold text-sm text-emerald-900">{studentName}</span>
+            <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+              <User className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="font-extrabold text-xs text-emerald-900">{studentName}</span>
               <button
                 onClick={onChangeName}
                 title="Edit display name"
-                className="text-xs text-emerald-600 hover:text-emerald-800 underline ml-1 cursor-pointer"
+                className="text-[11px] text-emerald-600 hover:text-emerald-800 underline ml-0.5 cursor-pointer"
               >
                 Change
               </button>
@@ -72,18 +72,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={onOpenTeacherGuide}
-            className="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border-2 border-amber-300 font-bold px-3 py-1.5 rounded-full text-xs sm:text-sm transition-colors cursor-pointer"
+            className="flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold px-2.5 py-1 rounded-full text-xs transition-colors cursor-pointer"
             title="Open Teacher Guide & Curriculum Info"
           >
-            <BookOpen className="w-4 h-4 text-amber-700" />
+            <BookOpen className="w-3.5 h-3.5 text-amber-700" />
             <span>Teacher Guide</span>
           </button>
         </div>
       </div>
 
-      {/* Interactive Progress Journey Map */}
-      <div className="bg-emerald-50/80 border-t border-emerald-100 px-4 py-2 overflow-x-auto">
-        <div className="max-w-6xl mx-auto flex items-center justify-between min-w-[680px] gap-1">
+      {/* Compact Progress Journey Map */}
+      <div className="bg-emerald-50/70 border-t border-emerald-100 px-3 py-1 overflow-x-auto">
+        <div className="max-w-5xl mx-auto flex items-center justify-between min-w-[620px] gap-1">
           {STAGES.map((s, idx) => {
             const isCurrent = currentStage === s.id;
             const isCompleted = completedStages.includes(s.id);
@@ -94,17 +94,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   disabled={!canNavigate}
                   onClick={() => canNavigate && onNavigate(s.id)}
-                  className={`flex flex-col items-center gap-1 px-2 py-1 rounded-xl transition-all cursor-pointer ${
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded-lg transition-all cursor-pointer ${
                     isCurrent
-                      ? 'bg-emerald-600 text-white font-bold shadow-md scale-105'
+                      ? 'bg-emerald-600 text-white font-black shadow-xs scale-102'
                       : isCompleted
-                      ? 'bg-emerald-100 text-emerald-900 font-semibold hover:bg-emerald-200'
+                      ? 'bg-emerald-100 text-emerald-900 font-bold hover:bg-emerald-200'
                       : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
                   }`}
                 >
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold">
+                  <div className="flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold">
                     {isCompleted ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600 fill-emerald-100" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100" />
                     ) : (
                       <span>{s.number}</span>
                     )}
@@ -114,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 {idx < STAGES.length - 1 && (
                   <div
-                    className={`h-1 flex-1 rounded-full transition-colors ${
+                    className={`h-0.5 flex-1 rounded-full transition-colors ${
                       isCompleted ? 'bg-emerald-400' : 'bg-slate-200'
                     }`}
                   />
