@@ -3,7 +3,7 @@ import type { TestResult } from '../types/game';
 import { PRE_TEST_QUESTIONS } from '../data/preTestQuestions';
 import { PikoMascot } from './PikoMascot';
 import { PolygonSvgPreview } from './PolygonSvgPreview';
-import { ArrowRight, HelpCircle, Sparkles, Check, ShieldCheck } from 'lucide-react';
+import { ArrowRight, HelpCircle, Sparkles, Check, ShieldCheck, Trophy } from 'lucide-react';
 
 interface Stage3PreTestProps {
   studentName: string;
@@ -18,6 +18,7 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [calculatedResult, setCalculatedResult] = useState<TestResult | null>(null);
 
   const currentQ = PRE_TEST_QUESTIONS[currentIndex];
   const isLastQuestion = currentIndex === PRE_TEST_QUESTIONS.length - 1;
@@ -38,26 +39,29 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
       setCurrentIndex(nextIdx);
       setSelectedOption(answers[PRE_TEST_QUESTIONS[nextIdx].id] || '');
     } else {
+      // Calculate total score automatically on final question submit
+      let score = 0;
+      PRE_TEST_QUESTIONS.forEach((q) => {
+        if (answers[q.id] === q.correctOptionId) {
+          score += 1;
+        }
+      });
+
+      const res: TestResult = {
+        score,
+        total: PRE_TEST_QUESTIONS.length,
+        answers,
+        completedAt: new Date()
+      };
+      setCalculatedResult(res);
       setShowCompletionModal(true);
     }
   };
 
   const handleFinalSubmit = () => {
-    let score = 0;
-    PRE_TEST_QUESTIONS.forEach((q) => {
-      if (answers[q.id] === q.correctOptionId) {
-        score += 1;
-      }
-    });
-
-    const result: TestResult = {
-      score,
-      total: PRE_TEST_QUESTIONS.length,
-      answers,
-      completedAt: new Date()
-    };
-
-    onCompletePreTest(result);
+    if (calculatedResult) {
+      onCompletePreTest(calculatedResult);
+    }
   };
 
   return (
@@ -287,21 +291,44 @@ export const Stage3PreTest: React.FC<Stage3PreTestProps> = ({
         </div>
       </div>
 
-      {/* Completion Confirmation Modal */}
-      {showCompletionModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 border-4 border-indigo-400 shadow-2xl animate-bounce-subtle">
-            <PikoMascot mood="celebrating" size="md" />
-            <h3 className="text-2xl font-black text-slate-800">PRE-TEST COMPLETED!</h3>
-            <p className="text-slate-600 text-xs sm:text-sm font-medium">
-              Great effort, Explorer <span className="font-extrabold text-indigo-600">{studentName}</span>! Your responses have been saved. Now let's start your learning video adventure!
+      {/* Immediate Pre-Test Results Screen Modal */}
+      {showCompletionModal && calculatedResult && (
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 text-center space-y-6 border-4 border-amber-400 shadow-2xl animate-bounce-subtle">
+            <PikoMascot mood={calculatedResult.score >= 7 ? 'celebrating' : 'happy'} size="md" />
+
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-950 px-3 py-0.5 rounded-full text-xs font-black uppercase">
+                <Trophy className="w-4 h-4 text-amber-600" /> Assessment Complete
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-800">YOUR PRE-TEST RESULT</h3>
+              <p className="text-slate-600 text-sm font-semibold">
+                Explorer <span className="font-extrabold text-indigo-600 underline">{studentName}</span>
+              </p>
+            </div>
+
+            <div className="bg-amber-50 border-2 border-amber-300 p-5 rounded-2xl space-y-2">
+              <span className="text-xs uppercase font-extrabold text-amber-900 block tracking-wider">
+                Initial Score
+              </span>
+              <div className="text-4xl sm:text-5xl font-black text-amber-600">
+                {calculatedResult.score} <span className="text-xl text-slate-400 font-extrabold">/ 10</span>
+              </div>
+              <span className="text-xs font-bold text-amber-800 bg-amber-200/80 px-3 py-1 rounded-full inline-block">
+                Percentage: {calculatedResult.score * 10}%
+              </span>
+            </div>
+
+            <p className="text-slate-700 text-sm sm:text-base font-extrabold leading-relaxed">
+              “Great effort, {studentName}! You scored {calculatedResult.score} out of 10. Every question is a chance to learn something new in Polygonia!”
             </p>
 
             <button
               onClick={handleFinalSubmit}
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-base rounded-2xl shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-lg rounded-2xl shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              CONTINUE TO LEARNING VIDEO ➔
+              <span>CONTINUE TO VIDEO</span>
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>

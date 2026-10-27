@@ -143,13 +143,13 @@ export const POST_TEST_QUESTIONS: AssessmentItem[] = [
     explanation: 'Honeybee cells are shaped like regular hexagons with 6 equal sides.',
     learningObjective: '7.3.1 Apply understanding to visual real-world problems.'
   },
-  // Item 10: Pattern Construction / Completion
+  // Item 10: Pattern Construction / Recreation
   {
     id: 10,
     type: 'pattern',
-    question: 'Look at the floor tile pattern below. Which polygon tile completes the missing spot [ ? ]?',
+    question: 'Complete or reconstruct this geometric tile design by selecting the missing regular polygon tile for position [ ? ]:',
     correctOptionId: 'opt-octagon-amber',
-    explanation: 'The pattern repeats: Heptagon, Octagon, Pentagon, Heptagon, [Octagon], Pentagon.',
+    explanation: 'The repeating geometric pattern sequence is: Heptagon, Octagon, Pentagon, Heptagon, [Octagon], Pentagon.',
     learningObjective: '7.3.2 Create and complete patterns based on regular polygons.',
     patternData: {
       sequence: [

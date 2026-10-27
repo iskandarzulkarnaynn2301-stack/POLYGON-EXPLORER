@@ -15,11 +15,11 @@ import {
   Eye,
   Play,
   Copy,
-  Layers,
   MoveUp,
   MoveDown,
   X,
-  Sparkles
+  Sparkles,
+  Layers
 } from 'lucide-react';
 
 interface Stage7PatternWorkshopProps {
@@ -53,11 +53,12 @@ interface GalleryExample {
   }>;
 }
 
+// Gallery focused strictly on Honeycomb Cluster and Polygon Flower
 const PATTERN_GALLERY: GalleryExample[] = [
   {
     id: 'honeycomb',
     name: 'Example 1 — Honeycomb Cluster',
-    description: 'A neat, attractive geometric cluster built with 1 central regular hexagon surrounded by 6 matching regular hexagons in a balanced honeycomb structure!',
+    description: 'A neat geometric cluster built with 1 central regular hexagon surrounded by matching regular hexagons in a balanced honeycomb structure!',
     shapes: [
       { type: 'hexagon', x: 250, y: 150, color: '#f59e0b', rotation: 0, scale: 1 },
       { type: 'hexagon', x: 250, y: 70, color: '#10b981', rotation: 0, scale: 1 },
@@ -71,7 +72,7 @@ const PATTERN_GALLERY: GalleryExample[] = [
   {
     id: 'flower',
     name: 'Example 2 — Polygon Flower',
-    description: 'An attractive flower composition with 1 central regular hexagon surrounded symmetrically by 6 regular pentagons rotated radially!',
+    description: 'An attractive flower composition with 1 central regular hexagon surrounded symmetrically by regular pentagons rotated radially!',
     shapes: [
       { type: 'hexagon', x: 250, y: 150, color: '#f59e0b', rotation: 0, scale: 1.1 },
       { type: 'pentagon', x: 250, y: 65, color: '#ec4899', rotation: 0, scale: 0.95 },
@@ -80,33 +81,6 @@ const PATTERN_GALLERY: GalleryExample[] = [
       { type: 'pentagon', x: 250, y: 235, color: '#ef4444', rotation: 180, scale: 0.95 },
       { type: 'pentagon', x: 175, y: 195, color: '#10b981', rotation: 240, scale: 0.95 },
       { type: 'pentagon', x: 175, y: 110, color: '#06b6d4', rotation: 300, scale: 0.95 }
-    ]
-  },
-  {
-    id: 'robot',
-    name: 'Example 3 — Polygon Robot',
-    description: 'A cute geometric robot built using a regular hexagon for the head, an octagon for the body, and pentagons for the hands and feet!',
-    shapes: [
-      { type: 'hexagon', x: 250, y: 60, color: '#06b6d4', rotation: 0, scale: 1 },
-      { type: 'octagon', x: 250, y: 160, color: '#3b82f6', rotation: 0, scale: 1.2 },
-      { type: 'pentagon', x: 160, y: 160, color: '#f59e0b', rotation: 270, scale: 0.8 },
-      { type: 'pentagon', x: 340, y: 160, color: '#f59e0b', rotation: 90, scale: 0.8 },
-      { type: 'pentagon', x: 210, y: 260, color: '#10b981', rotation: 180, scale: 0.85 },
-      { type: 'pentagon', x: 290, y: 260, color: '#10b981', rotation: 180, scale: 0.85 },
-      { type: 'heptagon', x: 250, y: 10, color: '#8b5cf6', rotation: 0, scale: 0.6 }
-    ]
-  },
-  {
-    id: 'butterfly',
-    name: 'Example 4 — Polygon Butterfly',
-    description: 'A beautiful, symmetrical butterfly design with a central polygon body column and matching pentagon, hexagon, heptagon, and octagon wings!',
-    shapes: [
-      { type: 'hexagon', x: 250, y: 120, color: '#10b981', rotation: 0, scale: 0.8 },
-      { type: 'octagon', x: 250, y: 180, color: '#8b5cf6', rotation: 0, scale: 0.9 },
-      { type: 'heptagon', x: 170, y: 100, color: '#3b82f6', rotation: 30, scale: 1.1 },
-      { type: 'heptagon', x: 330, y: 100, color: '#3b82f6', rotation: 330, scale: 1.1 },
-      { type: 'pentagon', x: 180, y: 200, color: '#ef4444', rotation: 45, scale: 1 },
-      { type: 'pentagon', x: 320, y: 200, color: '#ef4444', rotation: 315, scale: 1 }
     ]
   }
 ];
@@ -123,7 +97,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
   const [showGalleryModal, setShowGalleryModal] = useState<boolean>(false);
   const [previewExample, setPreviewExample] = useState<GalleryExample | null>(null);
 
-  // Drag interaction state ref to avoid unnecessary re-renders during smooth mouse/touch drag
+  // Drag interaction state ref
   const dragRef = useRef<{
     isDragging: boolean;
     shapeId: string | null;
@@ -259,7 +233,6 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     e.stopPropagation();
     setSelectedShapeId(shape.id);
 
-    // Capture pointer to guarantee dragging continues even if finger/cursor moves fast
     e.currentTarget.setPointerCapture(e.pointerId);
 
     dragRef.current = {
@@ -272,13 +245,17 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     };
   };
 
+  const handleDoubleClick = (e: React.MouseEvent, shape: WorkshopShape) => {
+    e.stopPropagation();
+    setSelectedShapeId(shape.id);
+  };
+
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!dragRef.current.isDragging || !dragRef.current.shapeId || !canvasRef.current) return;
 
     const dx = e.clientX - dragRef.current.startPointerX;
     const dy = e.clientY - dragRef.current.startPointerY;
 
-    // Calculate candidate positions
     const canvasBounds = canvasRef.current.getBoundingClientRect();
     const targetShape = shapes.find((s) => s.id === dragRef.current.shapeId);
     if (!targetShape) return;
@@ -290,7 +267,6 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     const newX = Math.max(0, Math.min(maxX, dragRef.current.startShapeX + dx));
     const newY = Math.max(0, Math.min(maxY, dragRef.current.startShapeY + dy));
 
-    // Direct state update for smooth 60fps movement
     onUpdateShapes(
       shapes.map((s) => (s.id === dragRef.current.shapeId ? { ...s, x: newX, y: newY } : s))
     );
@@ -301,7 +277,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
       try {
         e.currentTarget.releasePointerCapture(e.pointerId);
       } catch (err) {
-        // Ignore if pointer capture already lost
+        // Ignore if capture already lost
       }
       setHistory((prev) => [...prev, shapes]);
       dragRef.current.isDragging = false;
@@ -426,7 +402,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
 
         {/* Right Design Workspace Grid */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Active Shape Editing Toolbar */}
+          {/* Active Shape Persistent Editing Toolbar */}
           {activeShape && (
             <div className="bg-amber-50 border-2 border-amber-300 p-3 rounded-2xl shadow-sm flex flex-wrap items-center justify-between gap-2 animate-bounce-subtle">
               <div className="flex items-center gap-2">
@@ -503,7 +479,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
             style={{
               backgroundImage: 'radial-gradient(#cbd5e1 1.5px, transparent 1.5px)',
               backgroundSize: '24px 24px',
-              touchAction: 'none' // Prevent scrolling on touch devices during drag
+              touchAction: 'none'
             }}
           >
             {shapes.length === 0 ? (
@@ -533,6 +509,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                   <div
                     key={shape.id}
                     onPointerDown={(e) => handlePointerDown(e, shape)}
+                    onDoubleClick={(e) => handleDoubleClick(e, shape)}
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onPointerCancel={handlePointerUp}
@@ -609,7 +586,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
               </button>
             </div>
 
-            {/* Gallery Grid */}
+            {/* Gallery Grid featuring Honeycomb Cluster and Polygon Flower */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {PATTERN_GALLERY.map((example) => (
                 <div

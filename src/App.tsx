@@ -111,6 +111,19 @@ export function App() {
     }));
   };
 
+  const handleRestartGame = () => {
+    setGameState({
+      studentName: '',
+      currentStage: 'name_entry',
+      completedStages: [],
+      preTestResult: null,
+      postTestResult: null,
+      exploredPolygons: [],
+      workshopShapes: [],
+      isTeacherGuideOpen: false
+    });
+  };
+
   return (
     <div className="min-h-screen bg-emerald-50/50 flex flex-col font-sans text-slate-800 antialiased selection:bg-emerald-200">
       {/* Navigation Header bar with journey progress map */}
@@ -185,6 +198,7 @@ export function App() {
             postTestResult={gameState.postTestResult}
             onRevisitActivities={(stage) => navigateTo(stage)}
             onReturnHome={() => navigateTo('home')}
+            onRestartGame={handleRestartGame}
             onOpenTeacherGuide={() => setGameState((prev) => ({ ...prev, isTeacherGuideOpen: true }))}
           />
         )}

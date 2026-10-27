@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { TestResult, GameStage } from '../types/game';
 import { PikoMascot } from './PikoMascot';
 import confetti from 'canvas-confetti';
@@ -9,7 +9,9 @@ import {
   RotateCcw,
   Home,
   BookOpen,
-  Sparkles
+  Sparkles,
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 
 interface Stage9ResultsProps {
@@ -18,6 +20,7 @@ interface Stage9ResultsProps {
   postTestResult: TestResult | null;
   onRevisitActivities: (stage: GameStage) => void;
   onReturnHome: () => void;
+  onRestartGame: () => void;
   onOpenTeacherGuide: () => void;
 }
 
@@ -27,8 +30,11 @@ export const Stage9Results: React.FC<Stage9ResultsProps> = ({
   postTestResult,
   onRevisitActivities,
   onReturnHome,
+  onRestartGame,
   onOpenTeacherGuide
 }) => {
+  const [showRestartModal, setShowRestartModal] = useState(false);
+
   const preScore = preTestResult ? preTestResult.score : 0;
   const postScore = postTestResult ? postTestResult.score : 0;
   const scoreDiff = postScore - preScore;
@@ -173,7 +179,7 @@ export const Stage9Results: React.FC<Stage9ResultsProps> = ({
       </div>
 
       {/* Navigation & Action Options */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4">
         <button
           onClick={() => onRevisitActivities('meet')}
           className="p-4 bg-white hover:bg-emerald-50 border-3 border-emerald-300 rounded-2xl font-black text-slate-800 hover:text-emerald-900 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
@@ -197,6 +203,14 @@ export const Stage9Results: React.FC<Stage9ResultsProps> = ({
           <Home className="w-5 h-5" />
           <span>RETURN TO HOME</span>
         </button>
+
+        <button
+          onClick={() => setShowRestartModal(true)}
+          className="p-4 bg-rose-500 hover:bg-rose-600 text-white font-black text-base rounded-2xl shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <RefreshCw className="w-5 h-5" />
+          <span>RESTART GAME</span>
+        </button>
       </div>
 
       {/* Teacher Guide Link */}
@@ -209,6 +223,42 @@ export const Stage9Results: React.FC<Stage9ResultsProps> = ({
           <span>Teacher Information & Evaluation Notes</span>
         </button>
       </div>
+
+      {/* Restart Game Confirmation Modal */}
+      {showRestartModal && (
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-5 border-4 border-rose-400 shadow-2xl animate-bounce-subtle">
+            <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black text-slate-800">Restart Adventure?</h3>
+              <p className="text-slate-600 text-sm font-medium">
+                Are you sure you want to start a brand new adventure? This will clear your current pre-test and post-test scores so a new student can explore Polygonia.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowRestartModal(false)}
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-2xl cursor-pointer"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={() => {
+                  setShowRestartModal(false);
+                  onRestartGame();
+                }}
+                className="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white font-black text-sm rounded-2xl shadow-md cursor-pointer"
+              >
+                YES, RESTART NOW
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
