@@ -19,7 +19,9 @@ import {
   MoveDown,
   X,
   Sparkles,
-  Layers
+  Layers,
+  Edit3,
+  MousePointer
 } from 'lucide-react';
 
 interface Stage7PatternWorkshopProps {
@@ -245,11 +247,6 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     };
   };
 
-  const handleDoubleClick = (e: React.MouseEvent, shape: WorkshopShape) => {
-    e.stopPropagation();
-    setSelectedShapeId(shape.id);
-  };
-
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!dragRef.current.isDragging || !dragRef.current.shapeId || !canvasRef.current) return;
 
@@ -315,12 +312,12 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
 
       {/* Workshop Main Interface Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left Control Panel */}
+        {/* Left Control Panel — Contains ALL controls in ONE single panel */}
         <div className="lg:col-span-1 space-y-5 bg-white p-5 rounded-3xl border-3 border-amber-200 shadow-md">
-          {/* Add Shapes Palette */}
+          {/* SECTION 1: ADD POLYGON */}
           <div>
-            <h4 className="font-extrabold text-slate-800 text-sm mb-3 uppercase tracking-wider flex items-center gap-2">
-              <Plus className="w-4 h-4 text-amber-600" /> Add Polygons
+            <h4 className="font-extrabold text-slate-800 text-xs mb-2.5 uppercase tracking-wider flex items-center gap-1.5 border-b border-amber-100 pb-1.5">
+              <Plus className="w-4 h-4 text-amber-600" /> Add Polygon
             </h4>
             <div className="grid grid-cols-2 gap-2">
               {[
@@ -332,10 +329,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                 <button
                   key={p.type}
                   onClick={() => addShape(p.type)}
-                  className="p-2.5 bg-slate-50 hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-400 rounded-2xl flex flex-col items-center gap-1 transition-all cursor-pointer group"
+                  className="p-2 bg-slate-50 hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-400 rounded-2xl flex flex-col items-center gap-1 transition-all cursor-pointer group"
                 >
-                  <PolygonSvgPreview type={p.type} size={45} fillColor={selectedColor} />
-                  <span className="text-xs font-bold text-slate-700 group-hover:text-amber-900">
+                  <PolygonSvgPreview type={p.type} size={38} fillColor={selectedColor} />
+                  <span className="text-[11px] font-bold text-slate-700 group-hover:text-amber-900">
                     + {p.label}
                   </span>
                 </button>
@@ -343,10 +340,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
             </div>
           </div>
 
-          {/* Color Picker */}
+          {/* SECTION 2: SELECT COLOUR */}
           <div>
-            <h4 className="font-extrabold text-slate-800 text-sm mb-2 uppercase tracking-wider flex items-center gap-2">
-              <Palette className="w-4 h-4 text-amber-600" /> Select Color
+            <h4 className="font-extrabold text-slate-800 text-xs mb-2 uppercase tracking-wider flex items-center gap-1.5 border-b border-amber-100 pb-1.5">
+              <Palette className="w-4 h-4 text-amber-600" /> Select Colour
             </h4>
             <div className="flex flex-wrap gap-2">
               {COLOR_PALETTE.map((c) => (
@@ -359,12 +356,96 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                     }
                   }}
                   style={{ backgroundColor: c }}
-                  className={`w-8 h-8 rounded-full border-2 transition-transform cursor-pointer ${
+                  className={`w-7 h-7 rounded-full border-2 transition-transform cursor-pointer ${
                     selectedColor === c ? 'scale-125 border-slate-900 shadow-md' : 'border-white hover:scale-110'
                   }`}
                 />
               ))}
             </div>
+          </div>
+
+          {/* SECTION 3: EDIT SELECTED POLYGON (Strictly inside the existing panel) */}
+          <div className="space-y-2.5 pt-1 border-t-2 border-amber-200">
+            <div className="flex items-center justify-between">
+              <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <Edit3 className="w-4 h-4 text-amber-600" /> Edit Selected Polygon
+              </h4>
+              {activeShape && (
+                <button
+                  onClick={() => setSelectedShapeId(null)}
+                  className="text-[10px] font-bold text-slate-400 hover:text-slate-600 flex items-center gap-0.5 cursor-pointer"
+                >
+                  <X className="w-3 h-3" /> Deselect
+                </button>
+              )}
+            </div>
+
+            {activeShape ? (
+              <div className="space-y-2 bg-amber-50/70 p-3 rounded-2xl border border-amber-200">
+                <div className="flex items-center gap-1.5 text-xs font-black text-amber-950">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="capitalize">Selected: {activeShape.type}</span>
+                </div>
+
+                {/* Edit Action Buttons Grid */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation - 15 + 360) % 360 }))}
+                    className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Rotate Left</span>
+                  </button>
+
+                  <button
+                    onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation + 15) % 360 }))}
+                    className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
+                  >
+                    <RotateCw className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Rotate Right</span>
+                  </button>
+
+                  <button
+                    onClick={duplicateSelectedShape}
+                    className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Duplicate</span>
+                  </button>
+
+                  <button
+                    onClick={removeSelectedShape}
+                    className="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-rose-700 cursor-pointer shadow-2xs"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Delete</span>
+                  </button>
+
+                  <button
+                    onClick={bringToFront}
+                    className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
+                  >
+                    <MoveUp className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Bring Front</span>
+                  </button>
+
+                  <button
+                    onClick={sendToBack}
+                    className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1 text-slate-700 cursor-pointer shadow-2xs"
+                  >
+                    <MoveDown className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Send Back</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-center space-y-1">
+                <MousePointer className="w-5 h-5 text-slate-400 mx-auto" />
+                <p className="text-[11px] font-bold text-slate-500">
+                  Select a polygon on canvas to edit
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Global Controls */}
@@ -402,80 +483,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
 
         {/* Right Design Workspace Grid */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Active Shape Persistent Editing Toolbar */}
-          {activeShape && (
-            <div className="bg-amber-50 border-2 border-amber-300 p-3 rounded-2xl shadow-sm flex flex-wrap items-center justify-between gap-2 animate-bounce-subtle">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                <span className="text-xs font-black text-amber-950 uppercase">
-                  Editing {activeShape.type}:
-                </span>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5">
-                <button
-                  onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation - 15 + 360) % 360 }))}
-                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
-                  title="Rotate Counterclockwise"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" /> Rotate Left
-                </button>
-
-                <button
-                  onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation + 15) % 360 }))}
-                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
-                  title="Rotate Clockwise"
-                >
-                  <RotateCw className="w-3.5 h-3.5" /> Rotate Right
-                </button>
-
-                <button
-                  onClick={duplicateSelectedShape}
-                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
-                  title="Duplicate Shape"
-                >
-                  <Copy className="w-3.5 h-3.5" /> Duplicate
-                </button>
-
-                <button
-                  onClick={bringToFront}
-                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
-                  title="Bring to Front"
-                >
-                  <MoveUp className="w-3.5 h-3.5" /> Bring to Front
-                </button>
-
-                <button
-                  onClick={sendToBack}
-                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
-                  title="Send to Back"
-                >
-                  <MoveDown className="w-3.5 h-3.5" /> Send to Back
-                </button>
-
-                <button
-                  onClick={removeSelectedShape}
-                  className="px-2.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs rounded-xl flex items-center gap-1 cursor-pointer"
-                  title="Delete Shape"
-                >
-                  <Trash2 className="w-3.5 h-3.5" /> Delete
-                </button>
-
-                <button
-                  onClick={() => setSelectedShapeId(null)}
-                  className="px-2 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1 cursor-pointer"
-                  title="Deselect Shape"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          )}
-
           <div
             ref={canvasRef}
             onClick={() => setSelectedShapeId(null)}
-            className="relative w-full h-[420px] bg-slate-50 rounded-3xl border-4 border-amber-300 shadow-inner overflow-hidden select-none"
+            className="relative w-full h-[460px] bg-slate-50 rounded-3xl border-4 border-amber-300 shadow-inner overflow-hidden select-none"
             style={{
               backgroundImage: 'radial-gradient(#cbd5e1 1.5px, transparent 1.5px)',
               backgroundSize: '24px 24px',
@@ -509,7 +520,6 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                   <div
                     key={shape.id}
                     onPointerDown={(e) => handlePointerDown(e, shape)}
-                    onDoubleClick={(e) => handleDoubleClick(e, shape)}
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onPointerCancel={handlePointerUp}
@@ -524,8 +534,8 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                     }}
                     className={`absolute cursor-grab active:cursor-grabbing select-none ${
                       isSelected
-                        ? 'z-30 drop-shadow-xl ring-2 ring-amber-400 ring-offset-2 rounded-xl'
-                        : 'z-10 hover:scale-105'
+                        ? 'z-30 drop-shadow-xl ring-3 ring-amber-400 ring-offset-2 rounded-xl scale-105'
+                        : 'z-10 hover:scale-102'
                     }`}
                   >
                     <PolygonSvgPreview
