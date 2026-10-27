@@ -1,13 +1,15 @@
 export type GameStage =
-  | 'name_entry' // Stage 1
-  | 'home'       // Stage 2
-  | 'pre_test'   // Stage 3
-  | 'video'      // Stage 4
-  | 'meet'       // Stage 5
-  | 'explore'    // Stage 6
-  | 'workshop'   // Stage 7
-  | 'post_test'  // Stage 8
-  | 'results';   // Stage 9
+  | 'name_entry'          // Stage 1
+  | 'home'                // Stage 2
+  | 'pre_test'            // Stage 3
+  | 'pre_test_results'    // Stage 4
+  | 'video'               // Stage 5
+  | 'meet'                // Stage 6 (Polygon Garden)
+  | 'memory'              // Stage 7 (Polygon Memory Corner)
+  | 'explore'             // Stage 8 (Discovery Lab)
+  | 'workshop'            // Stage 9 (Pattern Workshop)
+  | 'post_test'           // Stage 10 (Post-Test)
+  | 'results';            // Stage 11 (Hall of Achievements)
 
 export interface QuestionOption {
   id: string;

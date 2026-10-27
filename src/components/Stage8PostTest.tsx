@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import type { TestResult } from '../types/game';
 import { POST_TEST_QUESTIONS } from '../data/postTestQuestions';
+import { HoneycombCanvasQ10 } from './HoneycombCanvasQ10';
 import { PikoMascot } from './PikoMascot';
 import { PolygonSvgPreview } from './PolygonSvgPreview';
-import { ArrowRight, CheckCircle2, ShieldCheck, HelpCircle, XCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ShieldCheck, XCircle } from 'lucide-react';
 
 interface Stage8PostTestProps {
   studentName: string;
@@ -18,6 +19,7 @@ export const Stage8PostTest: React.FC<Stage8PostTestProps> = ({
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [submittedCurrent, setSubmittedCurrent] = useState(false);
+  const [q10Passed, setQ10Passed] = useState<boolean | null>(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   const currentQ = POST_TEST_QUESTIONS[currentIndex];
@@ -35,6 +37,15 @@ export const Stage8PostTest: React.FC<Stage8PostTestProps> = ({
   const handleSubmitAnswer = () => {
     if (!selectedOption) return;
     setSubmittedCurrent(true);
+  };
+
+  const handleQ10Evaluation = (isCorrect: boolean) => {
+    setQ10Passed(isCorrect);
+    setSubmittedCurrent(true);
+    setAnswers((prev) => ({
+      ...prev,
+      10: isCorrect ? 'honeycomb-pass' : 'honeycomb-fail'
+    }));
   };
 
   const handleNext = () => {
@@ -100,99 +111,44 @@ export const Stage8PostTest: React.FC<Stage8PostTestProps> = ({
       {/* Main Question Box */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border-3 border-emerald-200 shadow-md space-y-6">
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 leading-snug">
-            Q{currentQ.id}. {currentQ.question}
-          </h2>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 leading-snug">
+              Q{currentQ.id}. {currentQ.question}
+            </h2>
+            {currentQ.id === 10 && (
+              <p className="text-xs sm:text-sm text-slate-600 font-semibold mt-1">
+                Instruction: Look at the reference picture. Use 7 regular hexagons to recreate the same honeycomb pattern on your canvas.
+              </p>
+            )}
+          </div>
           <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full uppercase border border-emerald-200 shrink-0">
             {currentQ.type}
           </span>
         </div>
 
-        {/* Visual Illustration if present */}
-        {currentQ.illustrationType && (
-          <div className="flex justify-center my-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-            <PolygonSvgPreview
-              type={currentQ.illustrationType}
-              rotation={currentQ.rotationDegrees || 0}
-              size={180}
-            />
-          </div>
-        )}
+        {/* Q10 Interactive Honeycomb Canvas Task */}
+        {currentQ.id === 10 ? (
+          <HoneycombCanvasQ10
+            onEvaluate={handleQ10Evaluation}
+            isSubmitted={submittedCurrent}
+            hasPassed={q10Passed}
+          />
+        ) : (
+          <>
+            {/* Visual Illustration if present */}
+            {currentQ.illustrationType && (
+              <div className="flex justify-center my-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <PolygonSvgPreview
+                  type={currentQ.illustrationType}
+                  rotation={currentQ.rotationDegrees || 0}
+                  size={180}
+                />
+              </div>
+            )}
 
-        {/* Pattern construction item visualization */}
-        {currentQ.type === 'pattern' && currentQ.patternData && (
-          <div className="space-y-4 bg-emerald-50/60 p-5 rounded-2xl border-2 border-emerald-200">
-            <h3 className="text-sm font-bold text-emerald-900 flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-emerald-600" /> Pattern Construction Sequence:
-            </h3>
-
-            {/* Sequence Row */}
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 py-2">
-              {currentQ.patternData.sequence.map((item, idx) => {
-                const isMissing = idx === currentQ.patternData?.missingIndex;
-                const isSelected = selectedOption !== '';
-                const selectedOptObj = currentQ.patternData?.options.find((o) => o.id === selectedOption);
-
-                return (
-                  <div key={item.id} className="flex items-center gap-2">
-                    <div
-                      className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex flex-col items-center justify-center p-2 border-3 transition-all ${
-                        isMissing
-                          ? 'border-dashed border-amber-400 bg-amber-50 shadow-md animate-pulse-glow'
-                          : 'border-emerald-200 bg-white shadow-sm'
-                      }`}
-                    >
-                      {isMissing ? (
-                        isSelected && selectedOptObj ? (
-                          <PolygonSvgPreview type={selectedOptObj.polygon} size={50} fillColor={selectedOptObj.color} />
-                        ) : (
-                          <span className="text-2xl font-black text-amber-500">[ ? ]</span>
-                        )
-                      ) : (
-                        <PolygonSvgPreview type={item.polygon} size={50} fillColor={item.color} />
-                      )}
-                    </div>
-                    {idx < currentQ.patternData!.sequence.length - 1 && (
-                      <span className="text-emerald-400 font-bold text-lg">➔</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Answer Options */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2">
-          {currentQ.type === 'pattern' && currentQ.patternData
-            ? currentQ.patternData.options.map((opt) => {
-                const isSelected = selectedOption === opt.id;
-                const isCorrectOpt = opt.id === currentQ.correctOptionId;
-
-                let btnStyle = 'border-slate-200 bg-white hover:border-emerald-300 hover:bg-slate-50';
-                if (submittedCurrent) {
-                  if (isCorrectOpt) {
-                    btnStyle = 'border-emerald-600 bg-emerald-100 ring-2 ring-emerald-400';
-                  } else if (isSelected && !isCorrectOpt) {
-                    btnStyle = 'border-rose-500 bg-rose-100';
-                  }
-                } else if (isSelected) {
-                  btnStyle = 'border-emerald-600 bg-emerald-50 shadow-md scale-[1.02]';
-                }
-
-                return (
-                  <button
-                    key={opt.id}
-                    disabled={submittedCurrent}
-                    onClick={() => handleSelectOption(opt.id)}
-                    className={`p-4 rounded-2xl border-3 text-left transition-all flex items-center gap-4 cursor-pointer ${btnStyle}`}
-                  >
-                    <PolygonSvgPreview type={opt.polygon} size={60} fillColor={opt.color} />
-                    <span className="font-bold text-slate-800 text-sm sm:text-base">{opt.label}</span>
-                  </button>
-                );
-              })
-            : currentQ.options?.map((opt) => {
+            {/* Answer Options */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2">
+              {currentQ.options?.map((opt) => {
                 const isSelected = selectedOption === opt.id;
                 const isCorrectOpt = opt.id === currentQ.correctOptionId;
 
@@ -230,40 +186,48 @@ export const Stage8PostTest: React.FC<Stage8PostTestProps> = ({
                   </button>
                 );
               })}
-        </div>
-
-        {/* Short Corrective Feedback Panel post-submission */}
-        {submittedCurrent && (
-          <div
-            className={`p-4 rounded-2xl border-2 flex items-start gap-3 animate-bounce-subtle ${
-              isCurrentCorrect
-                ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
-                : 'bg-rose-50 border-rose-300 text-rose-950'
-            }`}
-          >
-            {isCurrentCorrect ? (
-              <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
-            ) : (
-              <XCircle className="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
-            )}
-            <div>
-              <p className="font-extrabold text-sm sm:text-base">
-                {isCurrentCorrect ? 'Correct! Well done!' : 'Keep learning! Here is why:'}
-              </p>
-              <p className="text-xs sm:text-sm font-medium mt-0.5">
-                {currentQ.explanation}
-              </p>
             </div>
-          </div>
+
+            {/* Short Corrective Feedback Panel post-submission */}
+            {submittedCurrent && (
+              <div
+                className={`p-4 rounded-2xl border-2 flex items-start gap-3 animate-bounce-subtle ${
+                  isCurrentCorrect
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                    : 'bg-rose-50 border-rose-300 text-rose-950'
+                }`}
+              >
+                {isCurrentCorrect ? (
+                  <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
+                ) : (
+                  <XCircle className="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
+                )}
+                <div>
+                  <p className="font-extrabold text-sm sm:text-base">
+                    {isCurrentCorrect ? 'Correct! Well done!' : 'Keep learning! Here is why:'}
+                  </p>
+                  <p className="text-xs sm:text-sm font-medium mt-0.5">
+                    {currentQ.explanation}
+                  </p>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Footer Navigation */}
         <div className="pt-4 flex items-center justify-between border-t border-slate-200">
           <p className="text-xs text-slate-500 font-medium">
-            {submittedCurrent ? 'Answer checked' : selectedOption ? 'Click CHECK ANSWER below' : 'Select an answer'}
+            {submittedCurrent
+              ? 'Answer checked'
+              : currentQ.id === 10
+              ? 'Snap all 7 hexagons onto the target grid, then click SUBMIT DESIGN'
+              : selectedOption
+              ? 'Click CHECK ANSWER below'
+              : 'Select an answer'}
           </p>
 
-          {!submittedCurrent ? (
+          {currentQ.id !== 10 && !submittedCurrent && (
             <button
               disabled={!selectedOption}
               onClick={handleSubmitAnswer}
@@ -275,7 +239,9 @@ export const Stage8PostTest: React.FC<Stage8PostTestProps> = ({
             >
               <span>CHECK ANSWER</span>
             </button>
-          ) : (
+          )}
+
+          {submittedCurrent && (
             <button
               onClick={handleNext}
               className="py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-lg shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"

@@ -143,31 +143,13 @@ export const POST_TEST_QUESTIONS: AssessmentItem[] = [
     explanation: 'Honeybee cells are shaped like regular hexagons with 6 equal sides.',
     learningObjective: '7.3.1 Apply understanding to visual real-world problems.'
   },
-  // Item 10: Pattern Construction / Recreation
+  // Item 10: Pattern Construction / Recreation (Interactive Honeycomb Task)
   {
     id: 10,
     type: 'pattern',
-    question: 'Complete or reconstruct this geometric tile design by selecting the missing regular polygon tile for position [ ? ]:',
-    correctOptionId: 'opt-octagon-amber',
-    explanation: 'The repeating geometric pattern sequence is: Heptagon, Octagon, Pentagon, Heptagon, [Octagon], Pentagon.',
-    learningObjective: '7.3.2 Create and complete patterns based on regular polygons.',
-    patternData: {
-      sequence: [
-        { id: 's1', polygon: 'heptagon', color: '#8b5cf6' },
-        { id: 's2', polygon: 'octagon', color: '#f59e0b' },
-        { id: 's3', polygon: 'pentagon', color: '#3b82f6' },
-        { id: 's4', polygon: 'heptagon', color: '#8b5cf6' },
-        { id: 's5', polygon: 'octagon', color: 'missing' },
-        { id: 's6', polygon: 'pentagon', color: '#3b82f6' }
-      ],
-      missingIndex: 4,
-      options: [
-        { id: 'opt-hexagon-green', polygon: 'hexagon', color: '#10b981', label: 'Green Hexagon (6 sides)' },
-        { id: 'opt-octagon-amber', polygon: 'octagon', color: '#f59e0b', label: 'Amber Octagon (8 sides)' },
-        { id: 'opt-pentagon-blue', polygon: 'pentagon', color: '#3b82f6', label: 'Blue Pentagon (5 sides)' },
-        { id: 'opt-heptagon-purple', polygon: 'heptagon', color: '#8b5cf6', label: 'Purple Heptagon (7 sides)' }
-      ],
-      correctOptionId: 'opt-octagon-amber'
-    }
+    question: 'Recreate the Honeycomb!',
+    correctOptionId: 'honeycomb-pass',
+    explanation: 'Look at the reference picture. Use 7 regular hexagons to recreate the same honeycomb pattern on your canvas.',
+    learningObjective: '7.3.2 Create patterns based on regular polygons.'
   }
 ];

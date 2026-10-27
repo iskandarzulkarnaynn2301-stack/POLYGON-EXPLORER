@@ -6,11 +6,14 @@ import { Stage2Home } from './components/Stage2Home';
 import { Stage3PreTest } from './components/Stage3PreTest';
 import { Stage4LearningVideo } from './components/Stage4LearningVideo';
 import { Stage5MeetPolygons } from './components/Stage5MeetPolygons';
+import { Stage7MemoryCorner } from './components/Stage7MemoryCorner';
 import { Stage6DiscoveryLab } from './components/Stage6DiscoveryLab';
 import { Stage7PatternWorkshop } from './components/Stage7PatternWorkshop';
 import { Stage8PostTest } from './components/Stage8PostTest';
 import { Stage9Results } from './components/Stage9Results';
 import { TeacherGuideModal } from './components/TeacherGuideModal';
+import { Trophy, ArrowRight } from 'lucide-react';
+import { PikoMascot } from './components/PikoMascot';
 
 export function App() {
   const [gameState, setGameState] = useState<GameState>({
@@ -61,8 +64,13 @@ export function App() {
     setGameState((prev) => ({
       ...prev,
       preTestResult: result,
-      currentStage: 'video'
+      currentStage: 'pre_test_results'
     }));
+  };
+
+  const handleContinueFromPreTestResults = () => {
+    markStageCompleted('pre_test_results');
+    navigateTo('video');
   };
 
   const handleCompleteVideo = () => {
@@ -81,6 +89,11 @@ export function App() {
 
   const handleCompleteMeetStage = () => {
     markStageCompleted('meet');
+    navigateTo('memory');
+  };
+
+  const handleCompleteMemoryCorner = () => {
+    markStageCompleted('memory');
     navigateTo('explore');
   };
 
@@ -160,6 +173,48 @@ export function App() {
           />
         )}
 
+        {gameState.currentStage === 'pre_test_results' && (
+          <div className="max-w-xl mx-auto py-12 px-4 text-center space-y-6 bg-white rounded-3xl border-4 border-amber-400 shadow-2xl my-8">
+            <PikoMascot mood={gameState.preTestResult && gameState.preTestResult.score >= 7 ? 'celebrating' : 'happy'} size="lg" />
+
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-950 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider">
+                <Trophy className="w-4 h-4 text-amber-600" /> Stage 4: Pre-Test Summary
+              </div>
+              <h2 className="text-3xl font-black text-slate-800">YOUR PRE-TEST RESULT</h2>
+              <p className="text-slate-600 text-sm font-semibold">
+                Explorer <span className="font-extrabold text-indigo-600 underline">{gameState.studentName}</span>
+              </p>
+            </div>
+
+            {gameState.preTestResult && (
+              <div className="bg-amber-50 border-2 border-amber-300 p-6 rounded-2xl space-y-2 max-w-sm mx-auto">
+                <span className="text-xs uppercase font-extrabold text-amber-900 block tracking-wider">
+                  Initial Assessment Score
+                </span>
+                <div className="text-5xl font-black text-amber-600">
+                  {gameState.preTestResult.score} <span className="text-2xl text-slate-400 font-extrabold">/ 10</span>
+                </div>
+                <span className="text-xs font-bold text-amber-800 bg-amber-200/80 px-3 py-1 rounded-full inline-block">
+                  Percentage: {gameState.preTestResult.score * 10}%
+                </span>
+              </div>
+            )}
+
+            <p className="text-slate-700 text-base font-extrabold leading-relaxed px-4">
+              “Great effort, {gameState.studentName}! You scored {gameState.preTestResult?.score || 0} out of 10. Every question is a chance to learn something new in Polygonia!”
+            </p>
+
+            <button
+              onClick={handleContinueFromPreTestResults}
+              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-lg rounded-2xl shadow-xl transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>CONTINUE TO LEARNING VIDEO</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
         {gameState.currentStage === 'video' && (
           <Stage4LearningVideo onCompleteVideo={handleCompleteVideo} />
         )}
@@ -170,6 +225,10 @@ export function App() {
             onPolygonExplored={handlePolygonExplored}
             onCompleteMeetStage={handleCompleteMeetStage}
           />
+        )}
+
+        {gameState.currentStage === 'memory' && (
+          <Stage7MemoryCorner onCompleteMemoryCorner={handleCompleteMemoryCorner} />
         )}
 
         {gameState.currentStage === 'explore' && (

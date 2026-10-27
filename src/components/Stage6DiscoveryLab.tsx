@@ -488,15 +488,20 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
                   >
                     CHECK MY ANSWER
                   </button>
+                ) : countShapeIndex < countShapes.length - 1 ? (
+                  <button
+                    onClick={handleNextCountShape}
+                    className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>NEXT QUESTION ➔</span>
+                  </button>
                 ) : (
-                  countShapeIndex < countShapes.length - 1 && (
-                    <button
-                      onClick={handleNextCountShape}
-                      className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <span>NEXT QUESTION ➔</span>
-                    </button>
-                  )
+                  <button
+                    onClick={() => setActiveTab('classify')}
+                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>ACTIVITY A COMPLETE! NEXT ACTIVITY ➔</span>
+                  </button>
                 )}
               </div>
             </div>
@@ -608,13 +613,22 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
                 })()}
               </div>
 
-              {classifyState !== 'neutral' && classifyIndex < classifyShapes.length - 1 && (
-                <button
-                  onClick={handleNextClassify}
-                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>NEXT SHAPE ➔</span>
-                </button>
+              {classifyState !== 'neutral' && (
+                classifyIndex < classifyShapes.length - 1 ? (
+                  <button
+                    onClick={handleNextClassify}
+                    className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>NEXT SHAPE ➔</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setActiveTab('rotate')}
+                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>ACTIVITY B COMPLETE! NEXT ACTIVITY ➔</span>
+                  </button>
+                )
               )}
             </div>
           </div>
@@ -696,13 +710,22 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
                 })}
               </div>
 
-              {rotateState !== 'neutral' && rotateIndex < rotateShapes.length - 1 && (
-                <button
-                  onClick={handleNextRotate}
-                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>NEXT SHAPE ➔</span>
-                </button>
+              {rotateState !== 'neutral' && (
+                rotateIndex < rotateShapes.length - 1 ? (
+                  <button
+                    onClick={handleNextRotate}
+                    className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>NEXT SHAPE ➔</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setActiveTab('detective')}
+                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>ACTIVITY C COMPLETE! NEXT ACTIVITY ➔</span>
+                  </button>
+                )
               )}
             </div>
           </div>
@@ -801,13 +824,19 @@ export const Stage6DiscoveryLab: React.FC<Stage6DiscoveryLabProps> = ({
               </p>
             )}
 
-            {detectiveState !== 'neutral' && detectiveIndex < detectiveClues.length - 1 && (
-              <button
-                onClick={handleNextDetective}
-                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>NEXT CLUE ➔</span>
-              </button>
+            {detectiveState !== 'neutral' && (
+              detectiveIndex < detectiveClues.length - 1 ? (
+                <button
+                  onClick={handleNextDetective}
+                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>NEXT CLUE ➔</span>
+                </button>
+              ) : (
+                <p className="text-xs font-bold text-emerald-700 text-center bg-emerald-50 p-2 rounded-xl border border-emerald-200">
+                  ★ All Discovery Lab activities complete! Use the banner below to go to the Pattern Workshop!
+                </p>
+              )
             )}
           </div>
         </div>
