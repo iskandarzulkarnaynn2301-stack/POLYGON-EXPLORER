@@ -6,20 +6,20 @@ import { toPng } from 'html-to-image';
 import {
   Palette,
   RotateCw,
+  RotateCcw,
   Trash2,
   Download,
-  RotateCcw,
   Plus,
-  CheckCircle2,
   ArrowRight,
-  Sparkles,
-  Layers,
-  ZoomIn,
-  ZoomOut,
   Grid,
   Eye,
   Play,
-  Copy
+  Copy,
+  Layers,
+  MoveUp,
+  MoveDown,
+  X,
+  Sparkles
 } from 'lucide-react';
 
 interface Stage7PatternWorkshopProps {
@@ -83,34 +83,30 @@ const PATTERN_GALLERY: GalleryExample[] = [
     ]
   },
   {
-    id: 'parade',
-    name: 'Example 3 — Polygon Parade',
-    description: 'An orderly repeating sequence of regular pentagon, hexagon, heptagon and octagon arranged symmetrically across two balanced rows!',
+    id: 'robot',
+    name: 'Example 3 — Polygon Robot',
+    description: 'A cute geometric robot built using a regular hexagon for the head, an octagon for the body, and pentagons for the hands and feet!',
     shapes: [
-      { type: 'pentagon', x: 80, y: 90, color: '#3b82f6', rotation: 0, scale: 1 },
-      { type: 'hexagon', x: 190, y: 90, color: '#10b981', rotation: 0, scale: 1 },
-      { type: 'heptagon', x: 300, y: 90, color: '#8b5cf6', rotation: 0, scale: 1 },
-      { type: 'octagon', x: 410, y: 90, color: '#f59e0b', rotation: 0, scale: 1 },
-      { type: 'pentagon', x: 80, y: 210, color: '#ef4444', rotation: 0, scale: 1 },
-      { type: 'hexagon', x: 190, y: 210, color: '#06b6d4', rotation: 0, scale: 1 },
-      { type: 'heptagon', x: 300, y: 210, color: '#ec4899', rotation: 0, scale: 1 },
-      { type: 'octagon', x: 410, y: 210, color: '#84cc16', rotation: 0, scale: 1 }
+      { type: 'hexagon', x: 250, y: 60, color: '#06b6d4', rotation: 0, scale: 1 },
+      { type: 'octagon', x: 250, y: 160, color: '#3b82f6', rotation: 0, scale: 1.2 },
+      { type: 'pentagon', x: 160, y: 160, color: '#f59e0b', rotation: 270, scale: 0.8 },
+      { type: 'pentagon', x: 340, y: 160, color: '#f59e0b', rotation: 90, scale: 0.8 },
+      { type: 'pentagon', x: 210, y: 260, color: '#10b981', rotation: 180, scale: 0.85 },
+      { type: 'pentagon', x: 290, y: 260, color: '#10b981', rotation: 180, scale: 0.85 },
+      { type: 'heptagon', x: 250, y: 10, color: '#8b5cf6', rotation: 0, scale: 0.6 }
     ]
   },
   {
-    id: 'mosaic',
-    name: 'Example 4 — Symmetry Mosaic',
-    description: 'A balanced central-axis geometric artwork showcasing symmetry and deliberate polygon arrangement using all four regular polygon types!',
+    id: 'butterfly',
+    name: 'Example 4 — Polygon Butterfly',
+    description: 'A beautiful, symmetrical butterfly design with a central polygon body column and matching pentagon, hexagon, heptagon, and octagon wings!',
     shapes: [
-      { type: 'octagon', x: 250, y: 150, color: '#f59e0b', rotation: 0, scale: 1.25 },
-      { type: 'heptagon', x: 140, y: 150, color: '#8b5cf6', rotation: 0, scale: 1 },
-      { type: 'heptagon', x: 360, y: 150, color: '#8b5cf6', rotation: 0, scale: 1 },
-      { type: 'hexagon', x: 250, y: 55, color: '#10b981', rotation: 0, scale: 1 },
-      { type: 'hexagon', x: 250, y: 245, color: '#10b981', rotation: 0, scale: 1 },
-      { type: 'pentagon', x: 160, y: 70, color: '#3b82f6', rotation: 36, scale: 0.9 },
-      { type: 'pentagon', x: 340, y: 70, color: '#3b82f6', rotation: 36, scale: 0.9 },
-      { type: 'pentagon', x: 160, y: 230, color: '#ef4444', rotation: 180, scale: 0.9 },
-      { type: 'pentagon', x: 340, y: 230, color: '#ef4444', rotation: 180, scale: 0.9 }
+      { type: 'hexagon', x: 250, y: 120, color: '#10b981', rotation: 0, scale: 0.8 },
+      { type: 'octagon', x: 250, y: 180, color: '#8b5cf6', rotation: 0, scale: 0.9 },
+      { type: 'heptagon', x: 170, y: 100, color: '#3b82f6', rotation: 30, scale: 1.1 },
+      { type: 'heptagon', x: 330, y: 100, color: '#3b82f6', rotation: 330, scale: 1.1 },
+      { type: 'pentagon', x: 180, y: 200, color: '#ef4444', rotation: 45, scale: 1 },
+      { type: 'pentagon', x: 320, y: 200, color: '#ef4444', rotation: 315, scale: 1 }
     ]
   }
 ];
@@ -120,7 +116,6 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
   onUpdateShapes,
   onCompleteWorkshop
 }) => {
-  const [activeMissionIndex, setActiveMissionIndex] = useState(0);
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string>('#3b82f6');
   const [history, setHistory] = useState<WorkshopShape[][]>([]);
@@ -146,36 +141,6 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
   });
 
   const canvasRef = useRef<HTMLDivElement>(null);
-
-  const missions = [
-    {
-      id: 1,
-      title: 'Mission 1 — Rainbow Pattern',
-      instruction: 'Arrange at least three regular polygons to make a colourful design.',
-      verify: (s: WorkshopShape[]) => s.length >= 3,
-      hint: 'Add 3 or more polygons to the canvas and make them colorful!'
-    },
-    {
-      id: 2,
-      title: 'Mission 2 — Polygon Flower',
-      instruction: 'Combine regular polygons to create a flower-inspired geometric design.',
-      verify: (s: WorkshopShape[]) => s.length >= 4,
-      hint: 'Combine 4 or more shapes (like pentagons or hexagons around a center)!'
-    },
-    {
-      id: 3,
-      title: 'Mission 3 — My Own Polygon Design',
-      instruction: 'Create an original pattern using at least two different types of regular polygons.',
-      verify: (s: WorkshopShape[]) => {
-        const types = new Set(s.map((shape) => shape.type));
-        return s.length >= 4 && types.size >= 2;
-      },
-      hint: 'Use at least 2 different shape types (e.g. Hexagon + Octagon)!'
-    }
-  ];
-
-  const currentMission = missions[activeMissionIndex];
-  const isMissionPassed = currentMission.verify(shapes);
 
   const saveToHistory = (newShapes: WorkshopShape[]) => {
     setHistory((prev) => [...prev, shapes]);
@@ -225,6 +190,22 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     setSelectedShapeId(null);
   };
 
+  const bringToFront = () => {
+    if (!selectedShapeId) return;
+    const target = shapes.find((s) => s.id === selectedShapeId);
+    if (!target) return;
+    const filtered = shapes.filter((s) => s.id !== selectedShapeId);
+    saveToHistory([...filtered, target]);
+  };
+
+  const sendToBack = () => {
+    if (!selectedShapeId) return;
+    const target = shapes.find((s) => s.id === selectedShapeId);
+    if (!target) return;
+    const filtered = shapes.filter((s) => s.id !== selectedShapeId);
+    saveToHistory([target, ...filtered]);
+  };
+
   const handleUndo = () => {
     if (history.length === 0) return;
     const previous = history[history.length - 1];
@@ -233,8 +214,10 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
   };
 
   const handleReset = () => {
-    saveToHistory([]);
-    setSelectedShapeId(null);
+    if (shapes.length > 0 && window.confirm('Are you sure you want to clear all shapes from your canvas?')) {
+      saveToHistory([]);
+      setSelectedShapeId(null);
+    }
   };
 
   const handleLoadExample = (example: GalleryExample) => {
@@ -326,6 +309,8 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     }
   };
 
+  const activeShape = shapes.find((s) => s.id === selectedShapeId);
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       {/* Title Banner */}
@@ -334,9 +319,9 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
           <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
             <Palette className="w-4 h-4 text-amber-200" /> Stage 7: Creative Studio
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black">PATTERN WORKSHOP</h1>
+          <h1 className="text-2xl sm:text-3xl font-black">MY CREATIVE POLYGON STUDIO</h1>
           <p className="text-amber-100 text-sm mt-1">
-            Learning Standard 7.3.2 — Create patterns based on regular polygons
+            Choose your shapes, explore your ideas and create something amazing!
           </p>
         </div>
 
@@ -346,53 +331,9 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
             className="py-2.5 px-4 bg-white hover:bg-amber-100 text-amber-950 font-extrabold text-xs sm:text-sm rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
           >
             <Grid className="w-4 h-4 text-amber-600" />
-            <span>INSPIRATION GALLERY</span>
+            <span>PATTERN INSPIRATION GALLERY</span>
           </button>
           <PikoMascot mood="excited" size="sm" />
-        </div>
-      </div>
-
-      {/* Guided Mission Bar */}
-      <div className="bg-white rounded-3xl p-5 border-3 border-amber-300 shadow-md space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-100 pb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500" />
-            <h3 className="font-extrabold text-slate-800 text-lg">
-              {currentMission.title}
-            </h3>
-          </div>
-          <div className="flex gap-2">
-            {missions.map((m, idx) => (
-              <button
-                key={m.id}
-                onClick={() => setActiveMissionIndex(idx)}
-                className={`px-3 py-1 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                  activeMissionIndex === idx
-                    ? 'bg-amber-500 text-amber-950 shadow-sm'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Mission {m.id}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <p className="text-slate-700 text-sm sm:text-base font-semibold">
-          {currentMission.instruction}
-        </p>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-amber-50 p-3 rounded-2xl border border-amber-200 text-xs text-amber-900 font-bold">
-          <span>💡 Hint: {currentMission.hint}</span>
-          {isMissionPassed ? (
-            <span className="bg-emerald-500 text-white px-3 py-1 rounded-full flex items-center gap-1 font-extrabold">
-              <CheckCircle2 className="w-4 h-4" /> Mission Goal Met!
-            </span>
-          ) : (
-            <span className="bg-amber-200 text-amber-900 px-3 py-1 rounded-full font-bold">
-              In Progress ({shapes.length} shapes)
-            </span>
-          )}
         </div>
       </div>
 
@@ -450,56 +391,6 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
             </div>
           </div>
 
-          {/* Selected Shape Controls */}
-          {selectedShapeId ? (
-            <div className="space-y-3 bg-amber-50 p-4 rounded-2xl border-2 border-amber-300">
-              <h4 className="font-extrabold text-amber-950 text-xs uppercase tracking-wider">
-                Shape Controls
-              </h4>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation + 30) % 360 }))}
-                  className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1 text-slate-700 cursor-pointer"
-                >
-                  <RotateCw className="w-3.5 h-3.5" /> Rotate 30°
-                </button>
-
-                <button
-                  onClick={duplicateSelectedShape}
-                  className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1 text-slate-700 cursor-pointer"
-                >
-                  <Copy className="w-3.5 h-3.5" /> Duplicate
-                </button>
-
-                <button
-                  onClick={() => updateSelectedShape((s) => ({ ...s, scale: Math.min(2, s.scale + 0.15) }))}
-                  className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1 text-slate-700 cursor-pointer"
-                >
-                  <ZoomIn className="w-3.5 h-3.5" /> Scale +
-                </button>
-
-                <button
-                  onClick={() => updateSelectedShape((s) => ({ ...s, scale: Math.max(0.6, s.scale - 0.15) }))}
-                  className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1 text-slate-700 cursor-pointer"
-                >
-                  <ZoomOut className="w-3.5 h-3.5" /> Scale -
-                </button>
-
-                <button
-                  onClick={removeSelectedShape}
-                  className="col-span-2 p-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
-                >
-                  <Trash2 className="w-3.5 h-3.5" /> Remove Shape
-                </button>
-              </div>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-400 italic">
-              Touch or click any shape on the grid to drag, rotate & duplicate it!
-            </p>
-          )}
-
           {/* Global Controls */}
           <div className="pt-2 flex flex-col gap-2 border-t border-slate-200">
             <div className="flex gap-2">
@@ -515,7 +406,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                 onClick={handleReset}
                 className="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1 text-slate-700 cursor-pointer"
               >
-                Clear Grid
+                Clear Canvas
               </button>
             </div>
 
@@ -535,6 +426,76 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
 
         {/* Right Design Workspace Grid */}
         <div className="lg:col-span-3 space-y-4">
+          {/* Active Shape Editing Toolbar */}
+          {activeShape && (
+            <div className="bg-amber-50 border-2 border-amber-300 p-3 rounded-2xl shadow-sm flex flex-wrap items-center justify-between gap-2 animate-bounce-subtle">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                <span className="text-xs font-black text-amber-950 uppercase">
+                  Editing {activeShape.type}:
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation - 15 + 360) % 360 }))}
+                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
+                  title="Rotate Counterclockwise"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Rotate Left
+                </button>
+
+                <button
+                  onClick={() => updateSelectedShape((s) => ({ ...s, rotation: (s.rotation + 15) % 360 }))}
+                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
+                  title="Rotate Clockwise"
+                >
+                  <RotateCw className="w-3.5 h-3.5" /> Rotate Right
+                </button>
+
+                <button
+                  onClick={duplicateSelectedShape}
+                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
+                  title="Duplicate Shape"
+                >
+                  <Copy className="w-3.5 h-3.5" /> Duplicate
+                </button>
+
+                <button
+                  onClick={bringToFront}
+                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
+                  title="Bring to Front"
+                >
+                  <MoveUp className="w-3.5 h-3.5" /> Bring to Front
+                </button>
+
+                <button
+                  onClick={sendToBack}
+                  className="px-2.5 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 text-slate-700 cursor-pointer"
+                  title="Send to Back"
+                >
+                  <MoveDown className="w-3.5 h-3.5" /> Send to Back
+                </button>
+
+                <button
+                  onClick={removeSelectedShape}
+                  className="px-2.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs rounded-xl flex items-center gap-1 cursor-pointer"
+                  title="Delete Shape"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                </button>
+
+                <button
+                  onClick={() => setSelectedShapeId(null)}
+                  className="px-2 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1 cursor-pointer"
+                  title="Deselect Shape"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+
           <div
             ref={canvasRef}
             onClick={() => setSelectedShapeId(null)}
@@ -602,7 +563,7 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
           </div>
 
           {/* Completion Banner */}
-          {isMissionPassed && (
+          {shapes.length >= 3 && (
             <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-bounce-subtle">
               <div className="space-y-1 text-center sm:text-left">
                 <h3 className="text-2xl font-black">AMAZING CREATION! YOU ARE READY FOR THE POLYGON CHALLENGE!</h3>
@@ -705,12 +666,13 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
             <div className="pt-2 flex justify-between items-center border-t border-slate-200">
               <button
                 onClick={() => {
-                  handleReset();
+                  onUpdateShapes([]);
+                  setSelectedShapeId(null);
                   setShowGalleryModal(false);
                 }}
                 className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer"
               >
-                START WITH BLANK CANVAS
+                CREATE MY OWN (BLANK CANVAS)
               </button>
 
               <button
