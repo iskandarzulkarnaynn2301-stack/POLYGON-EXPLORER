@@ -9,6 +9,7 @@ interface PolygonSvgPreviewProps {
   highlightVertices?: boolean;
   fillColor?: string;
   strokeColor?: string;
+  showBoundingRect?: boolean;
   className?: string;
 }
 
@@ -20,6 +21,7 @@ export const PolygonSvgPreview: React.FC<PolygonSvgPreviewProps> = ({
   highlightVertices = false,
   fillColor = '#3b82f6',
   strokeColor = '#1e3a8a',
+  showBoundingRect = false,
   className = ''
 }) => {
   let sides = 5;
@@ -74,23 +76,25 @@ export const PolygonSvgPreview: React.FC<PolygonSvgPreviewProps> = ({
   }
 
   const center = { x: size / 2, y: size / 2 };
-  const radius = (size / 2) * 0.75;
+  const radius = (size / 2) * 0.82;
 
   const points = getPolygonPoints(sides, radius, center, defaultRotation, isRegular);
   const pointsString = pointsToSvgPointsString(points);
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={`inline-block drop-shadow-md ${className}`}>
-      {/* Background container */}
-      <rect x="2" y="2" width={size - 4} height={size - 4} rx="16" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2" />
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={`inline-block drop-shadow-sm ${className}`}>
+      {/* Optional background container (only shown when explicitly requested) */}
+      {showBoundingRect && (
+        <rect x="2" y="2" width={size - 4} height={size - 4} rx="16" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2" />
+      )}
 
-      {/* Polygon main shape */}
+      {/* Standalone transparent Polygon main shape */}
       <polygon
         points={pointsString}
         fill={fillColor}
-        fillOpacity="0.85"
+        fillOpacity="0.9"
         stroke={strokeColor}
-        strokeWidth="4"
+        strokeWidth="3.5"
         strokeLinejoin="round"
       />
 
