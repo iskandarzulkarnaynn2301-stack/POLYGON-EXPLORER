@@ -18,7 +18,8 @@ import {
   ZoomOut,
   Grid,
   Eye,
-  Play
+  Play,
+  Copy
 } from 'lucide-react';
 
 interface Stage7PatternWorkshopProps {
@@ -54,55 +55,62 @@ interface GalleryExample {
 
 const PATTERN_GALLERY: GalleryExample[] = [
   {
-    id: 'flower',
-    name: 'Example 1 — Polygon Flower',
-    description: 'A beautiful flower composition built exclusively from regular hexagons and pentagons around a central octagon!',
+    id: 'honeycomb',
+    name: 'Example 1 — Honeycomb Cluster',
+    description: 'A neat, attractive geometric cluster built with 1 central regular hexagon surrounded by 6 matching regular hexagons in a balanced honeycomb structure!',
     shapes: [
-      { type: 'octagon', x: 200, y: 150, color: '#f59e0b', rotation: 0, scale: 1.2 },
-      { type: 'hexagon', x: 120, y: 150, color: '#10b981', rotation: 0, scale: 1 },
-      { type: 'hexagon', x: 280, y: 150, color: '#10b981', rotation: 0, scale: 1 },
-      { type: 'pentagon', x: 200, y: 70, color: '#3b82f6', rotation: 0, scale: 1 },
-      { type: 'pentagon', x: 200, y: 230, color: '#3b82f6', rotation: 0, scale: 1 },
-      { type: 'heptagon', x: 135, y: 85, color: '#8b5cf6', rotation: 30, scale: 0.9 },
-      { type: 'heptagon', x: 265, y: 215, color: '#8b5cf6', rotation: 30, scale: 0.9 }
+      { type: 'hexagon', x: 250, y: 150, color: '#f59e0b', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 250, y: 70, color: '#10b981', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 318, y: 110, color: '#3b82f6', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 318, y: 190, color: '#8b5cf6', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 250, y: 230, color: '#ef4444', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 182, y: 190, color: '#06b6d4', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 182, y: 110, color: '#84cc16', rotation: 0, scale: 1 }
+    ]
+  },
+  {
+    id: 'flower',
+    name: 'Example 2 — Polygon Flower',
+    description: 'An attractive flower composition with 1 central regular hexagon surrounded symmetrically by 6 regular pentagons rotated radially!',
+    shapes: [
+      { type: 'hexagon', x: 250, y: 150, color: '#f59e0b', rotation: 0, scale: 1.1 },
+      { type: 'pentagon', x: 250, y: 65, color: '#ec4899', rotation: 0, scale: 0.95 },
+      { type: 'pentagon', x: 325, y: 110, color: '#3b82f6', rotation: 60, scale: 0.95 },
+      { type: 'pentagon', x: 325, y: 195, color: '#8b5cf6', rotation: 120, scale: 0.95 },
+      { type: 'pentagon', x: 250, y: 235, color: '#ef4444', rotation: 180, scale: 0.95 },
+      { type: 'pentagon', x: 175, y: 195, color: '#10b981', rotation: 240, scale: 0.95 },
+      { type: 'pentagon', x: 175, y: 110, color: '#06b6d4', rotation: 300, scale: 0.95 }
+    ]
+  },
+  {
+    id: 'parade',
+    name: 'Example 3 — Polygon Parade',
+    description: 'An orderly repeating sequence of regular pentagon, hexagon, heptagon and octagon arranged symmetrically across two balanced rows!',
+    shapes: [
+      { type: 'pentagon', x: 80, y: 90, color: '#3b82f6', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 190, y: 90, color: '#10b981', rotation: 0, scale: 1 },
+      { type: 'heptagon', x: 300, y: 90, color: '#8b5cf6', rotation: 0, scale: 1 },
+      { type: 'octagon', x: 410, y: 90, color: '#f59e0b', rotation: 0, scale: 1 },
+      { type: 'pentagon', x: 80, y: 210, color: '#ef4444', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 190, y: 210, color: '#06b6d4', rotation: 0, scale: 1 },
+      { type: 'heptagon', x: 300, y: 210, color: '#ec4899', rotation: 0, scale: 1 },
+      { type: 'octagon', x: 410, y: 210, color: '#84cc16', rotation: 0, scale: 1 }
     ]
   },
   {
     id: 'mosaic',
-    name: 'Example 2 — Rainbow Polygon Mosaic',
-    description: 'A colourful tessellated grid constructed from alternating regular pentagons, hexagons, heptagons and octagons!',
+    name: 'Example 4 — Symmetry Mosaic',
+    description: 'A balanced central-axis geometric artwork showcasing symmetry and deliberate polygon arrangement using all four regular polygon types!',
     shapes: [
-      { type: 'pentagon', x: 100, y: 100, color: '#ef4444', rotation: 0, scale: 1 },
-      { type: 'hexagon', x: 190, y: 100, color: '#3b82f6', rotation: 0, scale: 1 },
-      { type: 'heptagon', x: 280, y: 100, color: '#10b981', rotation: 0, scale: 1 },
-      { type: 'octagon', x: 370, y: 100, color: '#8b5cf6', rotation: 0, scale: 1 },
-      { type: 'octagon', x: 100, y: 190, color: '#f59e0b', rotation: 0, scale: 1 },
-      { type: 'heptagon', x: 190, y: 190, color: '#ec4899', rotation: 0, scale: 1 },
-      { type: 'hexagon', x: 280, y: 190, color: '#06b6d4', rotation: 0, scale: 1 },
-      { type: 'pentagon', x: 370, y: 190, color: '#84cc16', rotation: 0, scale: 1 }
-    ]
-  },
-  {
-    id: 'mandala',
-    name: 'Example 3 — Polygon Mandala',
-    description: 'A radially symmetrical pattern formed by rotating regular heptagons and octagons in a balanced star ring!',
-    shapes: [
-      { type: 'octagon', x: 220, y: 150, color: '#8b5cf6', rotation: 0, scale: 1.3 },
-      { type: 'heptagon', x: 220, y: 150, color: '#3b82f6', rotation: 25, scale: 1.1 },
-      { type: 'hexagon', x: 220, y: 150, color: '#10b981', rotation: 50, scale: 0.9 },
-      { type: 'pentagon', x: 220, y: 150, color: '#f59e0b', rotation: 75, scale: 0.7 }
-    ]
-  },
-  {
-    id: 'composition',
-    name: 'Example 4 — Creative Polygon Composition',
-    description: 'An imaginative artistic motif combining regular pentagons, hexagons, heptagons and octagons in layered harmony!',
-    shapes: [
-      { type: 'hexagon', x: 230, y: 120, color: '#10b981', rotation: 0, scale: 1.2 },
-      { type: 'pentagon', x: 150, y: 170, color: '#ef4444', rotation: 180, scale: 1 },
-      { type: 'pentagon', x: 310, y: 170, color: '#ef4444', rotation: 180, scale: 1 },
-      { type: 'octagon', x: 230, y: 220, color: '#f59e0b', rotation: 0, scale: 1 },
-      { type: 'heptagon', x: 230, y: 40, color: '#8b5cf6', rotation: 0, scale: 0.9 }
+      { type: 'octagon', x: 250, y: 150, color: '#f59e0b', rotation: 0, scale: 1.25 },
+      { type: 'heptagon', x: 140, y: 150, color: '#8b5cf6', rotation: 0, scale: 1 },
+      { type: 'heptagon', x: 360, y: 150, color: '#8b5cf6', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 250, y: 55, color: '#10b981', rotation: 0, scale: 1 },
+      { type: 'hexagon', x: 250, y: 245, color: '#10b981', rotation: 0, scale: 1 },
+      { type: 'pentagon', x: 160, y: 70, color: '#3b82f6', rotation: 36, scale: 0.9 },
+      { type: 'pentagon', x: 340, y: 70, color: '#3b82f6', rotation: 36, scale: 0.9 },
+      { type: 'pentagon', x: 160, y: 230, color: '#ef4444', rotation: 180, scale: 0.9 },
+      { type: 'pentagon', x: 340, y: 230, color: '#ef4444', rotation: 180, scale: 0.9 }
     ]
   }
 ];
@@ -119,6 +127,23 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
   const [saveStatusMsg, setSaveStatusMsg] = useState<string>('');
   const [showGalleryModal, setShowGalleryModal] = useState<boolean>(false);
   const [previewExample, setPreviewExample] = useState<GalleryExample | null>(null);
+
+  // Drag interaction state ref to avoid unnecessary re-renders during smooth mouse/touch drag
+  const dragRef = useRef<{
+    isDragging: boolean;
+    shapeId: string | null;
+    startPointerX: number;
+    startPointerY: number;
+    startShapeX: number;
+    startShapeY: number;
+  }>({
+    isDragging: false,
+    shapeId: null,
+    startPointerX: 0,
+    startPointerY: 0,
+    startShapeX: 0,
+    startShapeY: 0
+  });
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -161,8 +186,8 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     const newShape: WorkshopShape = {
       id: `shape_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
       type,
-      x: 150 + Math.random() * 80,
-      y: 150 + Math.random() * 80,
+      x: 180 + Math.random() * 60,
+      y: 130 + Math.random() * 60,
       color: selectedColor,
       rotation: 0,
       scale: 1
@@ -176,6 +201,21 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     if (!selectedShapeId) return;
     const updated = shapes.map((s) => (s.id === selectedShapeId ? updater(s) : s));
     saveToHistory(updated);
+  };
+
+  const duplicateSelectedShape = () => {
+    if (!selectedShapeId) return;
+    const target = shapes.find((s) => s.id === selectedShapeId);
+    if (!target) return;
+
+    const dup: WorkshopShape = {
+      ...target,
+      id: `shape_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+      x: Math.min(target.x + 30, 480),
+      y: Math.min(target.y + 30, 320)
+    };
+    saveToHistory([...shapes, dup]);
+    setSelectedShapeId(dup.id);
   };
 
   const removeSelectedShape = () => {
@@ -231,12 +271,58 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
     }
   };
 
-  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (selectedShapeId && e.target === canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left - 50;
-      const y = e.clientY - rect.top - 50;
-      updateSelectedShape((s) => ({ ...s, x: Math.max(10, x), y: Math.max(10, y) }));
+  // High-performance Pointer Event Dragging
+  const handlePointerDown = (e: React.PointerEvent, shape: WorkshopShape) => {
+    e.stopPropagation();
+    setSelectedShapeId(shape.id);
+
+    // Capture pointer to guarantee dragging continues even if finger/cursor moves fast
+    e.currentTarget.setPointerCapture(e.pointerId);
+
+    dragRef.current = {
+      isDragging: true,
+      shapeId: shape.id,
+      startPointerX: e.clientX,
+      startPointerY: e.clientY,
+      startShapeX: shape.x,
+      startShapeY: shape.y
+    };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragRef.current.isDragging || !dragRef.current.shapeId || !canvasRef.current) return;
+
+    const dx = e.clientX - dragRef.current.startPointerX;
+    const dy = e.clientY - dragRef.current.startPointerY;
+
+    // Calculate candidate positions
+    const canvasBounds = canvasRef.current.getBoundingClientRect();
+    const targetShape = shapes.find((s) => s.id === dragRef.current.shapeId);
+    if (!targetShape) return;
+
+    const shapeSize = 100 * targetShape.scale;
+    const maxX = Math.max(10, canvasBounds.width - shapeSize);
+    const maxY = Math.max(10, canvasBounds.height - shapeSize);
+
+    const newX = Math.max(0, Math.min(maxX, dragRef.current.startShapeX + dx));
+    const newY = Math.max(0, Math.min(maxY, dragRef.current.startShapeY + dy));
+
+    // Direct state update for smooth 60fps movement
+    onUpdateShapes(
+      shapes.map((s) => (s.id === dragRef.current.shapeId ? { ...s, x: newX, y: newY } : s))
+    );
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (dragRef.current.isDragging) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch (err) {
+        // Ignore if pointer capture already lost
+      }
+      setHistory((prev) => [...prev, shapes]);
+      dragRef.current.isDragging = false;
+      dragRef.current.shapeId = null;
     }
   };
 
@@ -380,14 +466,21 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                 </button>
 
                 <button
-                  onClick={() => updateSelectedShape((s) => ({ ...s, scale: Math.min(2, s.scale + 0.2) }))}
+                  onClick={duplicateSelectedShape}
+                  className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1 text-slate-700 cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5" /> Duplicate
+                </button>
+
+                <button
+                  onClick={() => updateSelectedShape((s) => ({ ...s, scale: Math.min(2, s.scale + 0.15) }))}
                   className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1 text-slate-700 cursor-pointer"
                 >
                   <ZoomIn className="w-3.5 h-3.5" /> Scale +
                 </button>
 
                 <button
-                  onClick={() => updateSelectedShape((s) => ({ ...s, scale: Math.max(0.6, s.scale - 0.2) }))}
+                  onClick={() => updateSelectedShape((s) => ({ ...s, scale: Math.max(0.6, s.scale - 0.15) }))}
                   className="p-2 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1 text-slate-700 cursor-pointer"
                 >
                   <ZoomOut className="w-3.5 h-3.5" /> Scale -
@@ -395,15 +488,15 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
 
                 <button
                   onClick={removeSelectedShape}
-                  className="p-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
+                  className="col-span-2 p-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
                 >
-                  <Trash2 className="w-3.5 h-3.5" /> Remove
+                  <Trash2 className="w-3.5 h-3.5" /> Remove Shape
                 </button>
               </div>
             </div>
           ) : (
             <p className="text-xs text-slate-400 italic">
-              Tap any shape on the grid to select & adjust it!
+              Touch or click any shape on the grid to drag, rotate & duplicate it!
             </p>
           )}
 
@@ -444,11 +537,12 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
         <div className="lg:col-span-3 space-y-4">
           <div
             ref={canvasRef}
-            onClick={handleCanvasClick}
-            className="relative w-full h-[420px] bg-slate-50 rounded-3xl border-4 border-amber-300 shadow-inner overflow-hidden cursor-crosshair"
+            onClick={() => setSelectedShapeId(null)}
+            className="relative w-full h-[420px] bg-slate-50 rounded-3xl border-4 border-amber-300 shadow-inner overflow-hidden select-none"
             style={{
               backgroundImage: 'radial-gradient(#cbd5e1 1.5px, transparent 1.5px)',
-              backgroundSize: '24px 24px'
+              backgroundSize: '24px 24px',
+              touchAction: 'none' // Prevent scrolling on touch devices during drag
             }}
           >
             {shapes.length === 0 ? (
@@ -477,19 +571,23 @@ export const Stage7PatternWorkshop: React.FC<Stage7PatternWorkshopProps> = ({
                 return (
                   <div
                     key={shape.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedShapeId(shape.id);
-                    }}
+                    onPointerDown={(e) => handlePointerDown(e, shape)}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerCancel={handlePointerUp}
                     style={{
                       left: `${shape.x}px`,
                       top: `${shape.y}px`,
-                      transform: `rotate(${shape.rotation}deg)`,
                       width: `${size}px`,
-                      height: `${size}px`
+                      height: `${size}px`,
+                      transform: `rotate(${shape.rotation}deg)`,
+                      willChange: 'transform, left, top',
+                      touchAction: 'none'
                     }}
-                    className={`absolute cursor-grab active:cursor-grabbing transition-transform duration-100 ${
-                      isSelected ? 'ring-4 ring-amber-400 rounded-2xl z-20 shadow-xl' : 'z-10 hover:scale-105'
+                    className={`absolute cursor-grab active:cursor-grabbing select-none ${
+                      isSelected
+                        ? 'z-30 drop-shadow-xl ring-2 ring-amber-400 ring-offset-2 rounded-xl'
+                        : 'z-10 hover:scale-105'
                     }`}
                   >
                     <PolygonSvgPreview
