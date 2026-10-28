@@ -28,12 +28,12 @@ export function App() {
   });
 
   const navigateTo = (stage: GameStage) => {
-    // Check if target stage is allowed (either completed, current, or its predecessors are completed)
+    // Stage sequence for lock checks (10 stages)
     const stageSequence: GameStage[] = [
-      'name_entry', 'home', 'pre_test', 'pre_test_results',
+      'name_entry', 'home', 'pre_test',
       'video', 'meet', 'memory', 'explore', 'workshop', 'post_test', 'results'
     ];
-    const targetIdx = stageSequence.indexOf(stage);
+    const targetIdx = stageSequence.indexOf(stage === 'pre_test_results' ? 'pre_test' : stage);
     const canNavigate = targetIdx <= 1 ||
       gameState.completedStages.includes(stage) ||
       stageSequence.slice(0, targetIdx).every((s) => gameState.completedStages.includes(s));
@@ -46,14 +46,6 @@ export function App() {
     }
   };
 
-  const markStageCompleted = (stage: GameStage) => {
-    setGameState((prev) => ({
-      ...prev,
-      completedStages: prev.completedStages.includes(stage)
-        ? prev.completedStages
-        : [...prev.completedStages, stage]
-    }));
-  };
 
   const handleSetStudentName = (name: string) => {
     setGameState((prev) => ({
@@ -66,28 +58,34 @@ export function App() {
     }));
   };
 
+  const completeStageAndNavigate = (stageToComplete: GameStage, targetStage: GameStage, extraStateUpdates?: Partial<GameState>) => {
+    setGameState((prev) => {
+      const updatedCompleted = prev.completedStages.includes(stageToComplete)
+        ? prev.completedStages
+        : [...prev.completedStages, stageToComplete];
+      return {
+        ...prev,
+        ...extraStateUpdates,
+        completedStages: updatedCompleted,
+        currentStage: targetStage
+      };
+    });
+  };
+
   const handleStartAdventure = () => {
-    markStageCompleted('home');
-    navigateTo('pre_test');
+    completeStageAndNavigate('home', 'pre_test');
   };
 
   const handleCompletePreTest = (result: TestResult) => {
-    markStageCompleted('pre_test');
-    setGameState((prev) => ({
-      ...prev,
-      preTestResult: result,
-      currentStage: 'pre_test_results'
-    }));
+    completeStageAndNavigate('pre_test', 'pre_test_results', { preTestResult: result });
   };
 
   const handleContinueFromPreTestResults = () => {
-    markStageCompleted('pre_test_results');
-    navigateTo('video');
+    completeStageAndNavigate('pre_test_results', 'video');
   };
 
   const handleCompleteVideo = () => {
-    markStageCompleted('video');
-    navigateTo('meet');
+    completeStageAndNavigate('video', 'meet');
   };
 
   const handlePolygonExplored = (key: string) => {
@@ -100,18 +98,15 @@ export function App() {
   };
 
   const handleCompleteMeetStage = () => {
-    markStageCompleted('meet');
-    navigateTo('memory');
+    completeStageAndNavigate('meet', 'memory');
   };
 
   const handleCompleteMemoryCorner = () => {
-    markStageCompleted('memory');
-    navigateTo('explore');
+    completeStageAndNavigate('memory', 'explore');
   };
 
   const handleCompleteDiscovery = () => {
-    markStageCompleted('explore');
-    navigateTo('workshop');
+    completeStageAndNavigate('explore', 'workshop');
   };
 
   const handleUpdateWorkshopShapes = (shapes: WorkshopShape[]) => {
@@ -122,18 +117,19 @@ export function App() {
   };
 
   const handleCompleteWorkshop = () => {
-    markStageCompleted('workshop');
-    navigateTo('post_test');
+    completeStageAndNavigate('workshop', 'post_test');
   };
 
   const handleCompletePostTest = (result: TestResult) => {
-    markStageCompleted('post_test');
-    markStageCompleted('results');
-    setGameState((prev) => ({
-      ...prev,
-      postTestResult: result,
-      currentStage: 'results'
-    }));
+    setGameState((prev) => {
+      const updated = new Set<GameStage>([...prev.completedStages, 'post_test', 'results']);
+      return {
+        ...prev,
+        postTestResult: result,
+        completedStages: Array.from(updated),
+        currentStage: 'results'
+      };
+    });
   };
 
   const handleRestartGame = () => {
@@ -191,7 +187,7 @@ export function App() {
 
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-950 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider">
-                <Trophy className="w-4 h-4 text-amber-600" /> Stage 4: Pre-Test Summary
+                <Trophy className="w-4 h-4 text-amber-600" /> Pre-Test Assessment Complete
               </div>
               <h2 className="text-3xl font-black text-slate-800">YOUR PRE-TEST RESULT</h2>
               <p className="text-slate-600 text-sm font-semibold">
